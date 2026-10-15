@@ -1,7 +1,7 @@
 // Business details. Update the phone number here and it changes everywhere on the site.
-export const PHONE_DISPLAY = '+44 7000 000000'
-export const PHONE_TEL = '+447000000000'
-export const WHATSAPP_NUMBER = '447000000000'
+export const PHONE_DISPLAY = '+44 7921 654755'
+export const PHONE_TEL = '+447921654755'
+export const WHATSAPP_NUMBER = '447921654755'
 
 export const ADDRESS_LINES = ['Access Self Storage', 'First Way, Wembley', 'Unit 5580']
 export const ADDRESS_QUERY = 'Access Self Storage, First Way, Wembley'
@@ -11,7 +11,7 @@ export const MAP_EMBED_URL = `https://www.google.com/maps?q=${encodeURIComponent
 export const MAPS_URL = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ADDRESS_QUERY)}`
 export const DIRECTIONS_URL = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(ADDRESS_QUERY)}`
 
-export const whatsappLink = (message = "Hello Esterica Fabrics, I'd like to enquire about your Kente cloth.") =>
+export const whatsappLink = (message = "Hi Esterica Fabrics, I'd like to enquire about your kente fabric.") =>
   `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`
 
 // Unsplash placeholders. Swap for real product photography later.

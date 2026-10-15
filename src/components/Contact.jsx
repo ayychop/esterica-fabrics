@@ -16,7 +16,7 @@ export default function Contact() {
   const submit = (e) => {
     e.preventDefault()
     const lines = [
-      'Hello Esterica Fabrics, I have an enquiry from your website.',
+      'Hi Esterica Fabrics, I have an enquiry from your website.',
       `Name: ${form.name}`,
       `Contact: ${form.contact}`,
       form.fabric && `Fabric: ${form.fabric}`,

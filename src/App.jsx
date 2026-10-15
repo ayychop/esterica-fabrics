@@ -37,6 +37,31 @@ function useActiveSection(ids) {
   return active
 }
 
+// True once the section with this id has fully scrolled out above the viewport.
+function usePastSection(id) {
+  const [past, setPast] = useState(false)
+  useEffect(() => {
+    const el = document.getElementById(id)
+    if (!el) return
+    const io = new IntersectionObserver(([e]) => setPast(!e.isIntersecting && e.boundingClientRect.top < 0))
+    io.observe(el)
+    return () => io.disconnect()
+  }, [id])
+  return past
+}
+
+function useIsPhone() {
+  const query = '(max-width: 767px)'
+  const [phone, setPhone] = useState(() => window.matchMedia(query).matches)
+  useEffect(() => {
+    const mq = window.matchMedia(query)
+    const onChange = () => setPhone(mq.matches)
+    mq.addEventListener('change', onChange)
+    return () => mq.removeEventListener('change', onChange)
+  }, [])
+  return phone
+}
+
 const C = { cream: '#FAF4E4', charcoal: '#121212', gold: '#E8B31A', indigo: '#1A4DA0', crimson: '#C41E1E', burgundy: '#6B1E2E', forest: '#0F7A34' }
 
 function Site() {
@@ -48,6 +73,11 @@ function Site() {
   const closeLegal = useCallback(() => setLegal(null), [])
   const { stop, start } = useSmoothScroll()
   const active = useActiveSection(SECTION_IDS)
+  // On phones only the WhatsApp orb floats over the content until the FAQ is behind you,
+  // so the two buttons together never cover the steps in How to Order.
+  const isPhone = useIsPhone()
+  const pastFaq = usePastSection('faq')
+  const showBackToTop = isPhone ? pastFaq : pastHero
 
   const [intro, setIntro] = useState(() => !introAlreadyPlayed())
   const [revealed, setRevealed] = useState(() => introAlreadyPlayed())
@@ -98,7 +128,7 @@ function Site() {
       <Footer onLegal={setLegal} />
 
       <WhatsAppOrb />
-      <BackToTop visible={pastHero} />
+      <BackToTop visible={showBackToTop} />
       <CookieBanner />
       <LegalModal which={legal} onClose={closeLegal} />
     </>

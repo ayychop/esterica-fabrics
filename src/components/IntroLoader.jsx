@@ -5,9 +5,10 @@ import { WORDMARK_LETTERS as WM } from './wordmarkLetters'
 
 const KEY = 'esterica-intro-played'
 
-// Inside lettering on a dark ground the cloth's black would read as holes in the letters,
-// so here it is woven in deep amber instead; gold, red, green and indigo stay as they are.
-const LETTER_TILE = KENTE_TILE.svg.replaceAll('#0A0A0A', '#B98900')
+// The letters carry the cloth exactly as woven: hard, vivid blocks of gold, red, green, indigo and
+// black, with no gradients and no sheen. A solid gold edge keeps the black from reading as holes.
+const GOLD = '#E8B31A'
+const LETTER_TILE = KENTE_TILE.svg
 
 export function introAlreadyPlayed() {
   try {
@@ -139,19 +140,6 @@ export default function IntroLoader({ onReveal, onDone }) {
           <pattern id="wm-kente" width={KENTE_TILE.w} height={KENTE_TILE.h} patternUnits="userSpaceOnUse" patternTransform={`scale(${scale})`}>
             <g dangerouslySetInnerHTML={{ __html: LETTER_TILE }} />
           </pattern>
-          <linearGradient id="wm-gold" x1="0" y1={vy} x2="0" y2={vy + vh} gradientUnits="userSpaceOnUse">
-            <stop offset="0" stopColor="#FFD84D" />
-            <stop offset="1" stopColor="#E8B31A" />
-          </linearGradient>
-          {/* a soft light across the top of the letters, shadow toward the base: cloth, not a flat fill */}
-          {lay.words.map((w, i) => (
-            <linearGradient key={i} id={`wm-sheen-${i}`} x1="0" y1={w.y - 150} x2="0" y2={w.y + 10} gradientUnits="userSpaceOnUse">
-              <stop offset="0" stopColor="#fff" stopOpacity="0.22" />
-              <stop offset="0.45" stopColor="#fff" stopOpacity="0" />
-              <stop offset="1" stopColor="#000" stopOpacity="0.32" />
-            </linearGradient>
-          ))}
-
           {/* each letter's wipe: a rect that grows downward from the letter's top */}
           {letters.map((l, i) => (
             <clipPath key={i} id={`wm-wipe-${i}`} clipPathUnits="userSpaceOnUse">
@@ -172,15 +160,12 @@ export default function IntroLoader({ onReveal, onDone }) {
           </mask>
         </defs>
 
-        <rect x={vx} y={vy} width={vw} height={vh} fill="url(#wm-gold)" mask="url(#wm-gold-mask)" />
+        <rect x={vx} y={vy} width={vw} height={vh} fill={GOLD} mask="url(#wm-gold-mask)" />
         <g mask="url(#wm-kente-mask)">
           <rect className="weave" x={vx - tileW} y={vy} width={vw + tileW * 3} height={vh} fill="url(#wm-kente)" />
-          {lay.words.map((w, i) => (
-            <rect key={i} x={vx} y={w.y - 175} width={vw} height="205" fill={`url(#wm-sheen-${i})`} />
-          ))}
         </g>
-        {/* a fine gold edge keeps every letterform crisp where the cloth runs dark */}
-        <g fill="none" stroke="#E8B31A" strokeOpacity="0.5" strokeWidth="1.4" mask="url(#wm-gold-mask)">
+        {/* a solid gold edge keeps every letterform crisp against the dark ground */}
+        <g fill="none" stroke={GOLD} strokeWidth="2.4" mask="url(#wm-gold-mask)">
           {letters.map((l, i) => (
             <path key={i} d={l.d} transform={place(l)} />
           ))}

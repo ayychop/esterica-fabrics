@@ -202,8 +202,7 @@ function recolour(ctx, size, palette) {
   ctx.putImageData(img, 0, 0)
 }
 
-// The hero cloth: generated once and shared, so the WebGL cloth and its CSS fallback
-// always show exactly the same pattern.
+// The hero cloth: generated once, so it always shows exactly the same pattern.
 let heroCanvas
 export function getHeroKente() {
   if (!heroCanvas) heroCanvas = createKenteCanvas({ size: 1024, seed: 7 })

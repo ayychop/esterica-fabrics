@@ -115,7 +115,7 @@ export default function Visit() {
           <a href={DIRECTIONS_URL} target="_blank" rel="noopener noreferrer" className="btn-outline-dark">
             Get Directions <ArrowIcon />
           </a>
-          <a href={whatsappLink("Hello Esterica Fabrics, I'm planning to visit your Wembley unit.")} target="_blank" rel="noopener noreferrer" className="btn-gold">
+          <a href={whatsappLink("Hi Esterica Fabrics, I'm planning to visit your Wembley unit. Could you confirm you're open?")} target="_blank" rel="noopener noreferrer" className="btn-gold">
             <WhatsAppIcon /> WhatsApp Us
           </a>
         </Reveal>

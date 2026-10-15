@@ -1,65 +1,29 @@
-import { Suspense, forwardRef, lazy, useEffect, useImperativeHandle, useRef, useState } from 'react'
+import { Component, Suspense, forwardRef, lazy, useEffect, useImperativeHandle, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { WhatsAppIcon, PinIcon } from '../ui'
 import { whatsappLink } from '../../config'
-import { getHeroKente } from '../../lib/kenteTexture'
 import OpenBadge from '../OpenBadge'
 
-// three.js is only fetched if this device is going to use it.
 const FabricCanvas = lazy(() => import('./FabricCanvas'))
 
-function canRunCloth() {
-  if (typeof window === 'undefined') return false
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return false
-  if (navigator.connection?.saveData) return false
-  if (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 2) return false
-  if (navigator.deviceMemory && navigator.deviceMemory <= 2) return false
-  try {
-    const c = document.createElement('canvas')
-    return !!(c.getContext('webgl2') || c.getContext('webgl'))
-  } catch {
-    return false
+// If the browser cannot create a WebGL context at all, the hero simply shows no cloth
+// rather than a different one: there is only ever one fabric.
+class NoClothOnError extends Component {
+  state = { failed: false }
+  static getDerivedStateFromError() {
+    return { failed: true }
   }
-}
-
-// Fallback cloth: the same generated Kente, cut into vertical slats that swing in sequence,
-// so a wave rolls across it. Transform only, no WebGL.
-const SLATS = 18
-function KenteFallback() {
-  const [src, setSrc] = useState(null)
-  useEffect(() => {
-    setSrc(getHeroKente().toDataURL('image/jpeg', 0.85))
-  }, [])
-  return (
-    <div
-      aria-hidden="true"
-      className="absolute left-[5%] right-[5%] top-[9%] h-[52%] md:left-auto md:right-[7%] md:top-[13%] md:h-[86%] md:w-[min(50vw,68vh)]"
-    >
-      <div className="absolute -left-[50vw] -right-[20vw] -top-1 h-[3px] rounded-full bg-gold-light/90" />
-      <div className="flex h-full w-full" style={{ perspective: '900px' }}>
-        {src &&
-          Array.from({ length: SLATS }, (_, i) => (
-            <div
-              key={i}
-              className="cloth-slat relative h-full flex-1"
-              style={{
-                backgroundImage: `url(${src})`,
-                backgroundSize: `${SLATS * 100}% 100%`,
-                backgroundPosition: `${(i / (SLATS - 1)) * 100}% 0`,
-                animationDelay: `${-i * 0.16}s`,
-              }}
-            />
-          ))}
-      </div>
-    </div>
-  )
+  render() {
+    return this.state.failed ? null : this.props.children
+  }
 }
 
 const Hero = forwardRef(function Hero({ ready }, ref) {
   const sectionRef = useRef(null)
   useImperativeHandle(ref, () => sectionRef.current)
 
-  const [mode, setMode] = useState(() => (canRunCloth() ? 'loading' : 'fallback')) // 'fallback' | 'loading' | 'webgl'
+  const [ready3d, setReady3d] = useState(false)
+  const [still] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches)
   const [visible, setVisible] = useState(true)
   const [compact] = useState(() => window.innerWidth < 768 || window.matchMedia('(pointer: coarse)').matches)
 
@@ -84,27 +48,15 @@ const Hero = forwardRef(function Hero({ ready }, ref) {
         style={{ background: 'radial-gradient(circle, rgba(232,179,26,0.42) 0%, rgba(232,179,26,0.12) 35%, transparent 62%)' }}
       />
 
-      {/* The CSS cloth only appears when WebGL is unavailable or gives up, never as a placeholder,
-          so the hero never shows one cloth and then swaps to another. */}
-      {mode === 'fallback' && (
-        <div className="absolute inset-0">
-          <KenteFallback />
-        </div>
-      )}
-
-      {mode !== 'fallback' && (
-        <div className={`absolute inset-0 transition-opacity duration-[1400ms] will-change-[opacity] ${mode === 'webgl' ? 'opacity-100' : 'opacity-0'}`}>
+      {/* The one and only cloth: hung from its clips, fringed at the hem, moving with the pointer.
+          Nothing is shown before it and nothing ever replaces it. */}
+      <div className={`absolute inset-0 transition-opacity duration-700 ${ready3d ? 'opacity-100' : 'opacity-0'}`}>
+        <NoClothOnError>
           <Suspense fallback={null}>
-            <FabricCanvas
-              eventSource={sectionRef}
-              active={visible}
-              compact={compact}
-              onReady={() => setMode('webgl')}
-              onFail={() => setMode('fallback')}
-            />
+            <FabricCanvas eventSource={sectionRef} active={visible} compact={compact} still={still} onReady={() => setReady3d(true)} />
           </Suspense>
-        </div>
-      )}
+        </NoClothOnError>
+      </div>
 
       {/* Legibility veil: from the left on desktop, from the bottom on phones */}
       <div
@@ -124,7 +76,8 @@ const Hero = forwardRef(function Hero({ ready }, ref) {
           <motion.div {...show(0)} className="pointer-events-auto mb-5">
             <OpenBadge large />
           </motion.div>
-          <motion.p {...show(0.05)} className="eyebrow text-gold">
+          {/* On phones the fabric runs behind this line, so it sits on its own solid dark band */}
+          <motion.p {...show(0.05)} className="eyebrow text-gold max-md:w-fit max-md:rounded-full max-md:bg-[#121212]/90 max-md:px-3.5 max-md:py-2 max-md:[text-shadow:0_1px_2px_#000]">
             Kente cloth house · Wembley
           </motion.p>
           <h1 className="font-serif text-cream">
@@ -152,7 +105,7 @@ const Hero = forwardRef(function Hero({ ready }, ref) {
         </div>
       </div>
 
-      {mode === 'webgl' && (
+      {ready3d && !still && (
         <motion.p
           aria-hidden="true"
           initial={{ opacity: 0 }}

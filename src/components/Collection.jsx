@@ -6,7 +6,7 @@ import { FABRICS, img, whatsappLink } from '../config'
 const ANGLES = [-3, 2.5, -2, 4, 3, -4, 2, -2.5]
 
 function Swatch({ fabric, index }) {
-  const message = `Hello Esterica Fabrics, I'm interested in the ${fabric.name} Kente cloth. Could you tell me about availability and pricing? I'd like ___ metres.`
+  const message = `Hi Esterica Fabrics, I'm interested in the ${fabric.name} kente fabric. Could you tell me about availability and pricing? I'd like ___ metres.`
   return (
     <Reveal as="article" y={40} delay={(index % 4) * 0.08} className={`swatch w-[68%] shrink-0 snap-center sm:w-[44%] md:w-auto ${index % 2 ? 'md:mt-16' : ''}`}>
       <div className="px-1.5 pt-1.5" style={{ transform: `rotate(${ANGLES[index % ANGLES.length]}deg)` }}>
@@ -84,7 +84,7 @@ export default function Collection() {
         </div>
 
         <Reveal className="mt-10 md:mt-12">
-          <a href={whatsappLink('Hello Esterica Fabrics, what Kente do you have in stock at the moment?')} target="_blank" rel="noopener noreferrer" className="btn-outline-dark">
+          <a href={whatsappLink("Hi Esterica Fabrics, I'd like to ask what's in stock at the moment.")} target="_blank" rel="noopener noreferrer" className="btn-outline-dark">
             <WhatsAppIcon /> Ask what's in stock
           </a>
         </Reveal>

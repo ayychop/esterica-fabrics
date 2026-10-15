@@ -228,31 +228,9 @@
   animation: orb-ring 3s ease-out 0.3s infinite;
 }
 
-/* ---------- Hero fallback: Kente slats swinging in sequence (transform and opacity only) ---------- */
-@keyframes slat-wave {
-  0%, 100% { transform: rotateY(-26deg) skewY(-2deg) scaleY(1); }
-  50% { transform: rotateY(26deg) skewY(2deg) scaleY(0.95); }
-}
-@keyframes slat-shade {
-  0%, 100% { opacity: 0.05; }
-  50% { opacity: 0.4; }
-}
 @keyframes kente-glow {
   0%, 100% { opacity: 0.55; transform: scale(1); }
   50% { opacity: 0.85; transform: scale(1.08); }
-}
-.cloth-slat {
-  transform-origin: 50% 0;
-  animation: slat-wave 2.6s ease-in-out infinite;
-  will-change: transform;
-}
-.cloth-slat::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg, rgba(0, 0, 0, 0.55), transparent 60%);
-  animation: slat-shade 2.6s ease-in-out infinite;
-  animation-delay: inherit;
 }
 .kente-glow {
   animation: kente-glow 9s ease-in-out infinite;
@@ -262,11 +240,9 @@
   .orb-beat,
   .orb-ring,
   .orb-ring-2,
-  .cloth-slat,
   .ribbon-drift,
   .drape-light,
   .cloth-pan,
-  .cloth-slat::after,
   .kente-glow {
     animation: none;
   }

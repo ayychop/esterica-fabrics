@@ -1,6 +1,5 @@
 import { useMemo, useRef, useState } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { PerformanceMonitor } from '@react-three/drei'
 import * as THREE from 'three'
 import { getHeroKente } from '../../lib/kenteTexture'
 
@@ -112,7 +111,7 @@ const fragmentShader = /* glsl */ `
   }
 `
 
-function Cloth({ compact }) {
+function Cloth({ compact, still }) {
   const { viewport } = useThree()
   const mat = useRef()
   const state = useRef({ push: 0, pushTarget: 0, mouse: new THREE.Vector2(0.5, 0.5), mouseTarget: new THREE.Vector2(0.5, 0.5), lastMove: -10, lastRipple: -10, lastRipplePos: new THREE.Vector2(-1, -1), idx: 0, lastAmbient: 0 })
@@ -129,7 +128,7 @@ function Cloth({ compact }) {
       uTime: { value: 0 },
       uMap: { value: texture },
       uSize: { value: new THREE.Vector2(1, 1) },
-      uRepeat: { value: new THREE.Vector2(1, 1) }, // one full cloth, matching the CSS fallback exactly
+      uRepeat: { value: new THREE.Vector2(1, 1) }, // one full cloth
       uMouse: { value: new THREE.Vector2(0.5, 0.5) },
       uPush: { value: 0 },
       uRipples: { value: Array.from({ length: MAX_RIPPLES }, () => new THREE.Vector4(0, 0, -100, 0)) },
@@ -163,8 +162,10 @@ function Cloth({ compact }) {
   useFrame((_, delta) => {
     const s = state.current
     const u = uniforms
-    const t = (u.uTime.value += Math.min(delta, 0.05))
     u.uSize.value.set(layout.width, layout.height)
+    // With reduced motion the cloth hangs still: time does not advance and nothing stirs it.
+    if (still) return
+    const t = (u.uTime.value += Math.min(delta, 0.05))
     if (t - s.lastMove > 1.2) s.pushTarget = 0
     s.push += (s.pushTarget - s.push) * Math.min(1, delta * 4)
     s.mouse.lerp(s.mouseTarget, Math.min(1, delta * 8))
@@ -178,7 +179,7 @@ function Cloth({ compact }) {
   })
 
   const onMove = (e) => {
-    if (!e.uv) return
+    if (still || !e.uv) return
     const s = state.current
     const t = uniforms.uTime.value
     s.mouseTarget.copy(e.uv)
@@ -196,7 +197,7 @@ function Cloth({ compact }) {
         position={[0, layout.y, 0]}
         onPointerMove={onMove}
         onPointerDown={(e) => {
-          if (!e.uv) return
+          if (still || !e.uv) return
           state.current.lastMove = uniforms.uTime.value
           addRipple(e.uv, 1.4)
         }}
@@ -239,7 +240,7 @@ function ReadySignal({ container, onReady }) {
   return null
 }
 
-export default function FabricCanvas({ eventSource, active, compact, onReady, onFail }) {
+export default function FabricCanvas({ eventSource, active, compact, still, onReady }) {
   // Pixel density is fixed for the life of the canvas: changing it mid-animation reallocates the canvas
   // and causes a one frame flash (this was the glitch about two seconds after load).
   const [dpr] = useState(() => Math.min(window.devicePixelRatio || 1, compact ? 1.25 : 1.5))
@@ -253,12 +254,10 @@ export default function FabricCanvas({ eventSource, active, compact, onReady, on
       gl={{ antialias: !compact, alpha: true, powerPreference: 'high-performance' }}
       onCreated={({ gl }) => gl.setClearColor(0x000000, 0)}
     >
-      {/* Only if the device keeps struggling do we hand over to the CSS cloth. No mid-flight resolution changes. */}
-      <PerformanceMonitor bounds={() => (compact ? [45, 60] : [35, 60])} flipflops={4} onFallback={onFail} />
       <ambientLight intensity={0.6} />
       <directionalLight position={[-3, 4, 5]} intensity={2.2} color="#FFE2A8" />
       <ReadySignal container={eventSource} onReady={onReady} />
-      <Cloth compact={compact} />
+      <Cloth compact={compact} still={still} />
     </Canvas>
   )
 }

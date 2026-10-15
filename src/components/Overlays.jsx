@@ -11,7 +11,7 @@ const spring = { type: 'spring', stiffness: 380, damping: 34 }
 export function WhatsAppOrb() {
   return (
     <motion.a
-      href={whatsappLink("Hello Esterica Fabrics, I'd like to enquire about your Kente cloth.")}
+      href={whatsappLink("Hi Esterica Fabrics, I'd like to enquire about your kente fabric.")}
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Enquire on WhatsApp"

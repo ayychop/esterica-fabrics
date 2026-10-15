@@ -43,7 +43,7 @@ export default function HowToOrder() {
   })
 
   return (
-    <section id="order" className="relative overflow-hidden bg-gold py-12 text-ink md:py-14">
+    <section id="order" className="relative overflow-hidden bg-gold pb-28 pt-12 text-ink md:py-14">
       {/* a whisper of Kente in the gold */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 opacity-[0.045]" style={{ backgroundImage: kenteDataUri, backgroundSize: '160px 60px' }} />
 
@@ -57,7 +57,7 @@ export default function HowToOrder() {
             </h2>
             <p className="mt-7 max-w-sm text-[16px] leading-[1.8] text-ink/80">No baskets and no checkouts. Ordering cloth should feel like visiting a good tailor.</p>
             <a
-              href={whatsappLink("Hello Esterica Fabrics, I'd like to place an order.")}
+              href={whatsappLink("Hi Esterica Fabrics, I'd like to place an order.")}
               target="_blank"
               rel="noopener noreferrer"
               className="btn mt-8 min-h-[62px] bg-ink px-9 text-[15px] text-gold shadow-[0_18px_36px_-14px_rgba(10,10,10,0.6)] hover:-translate-y-0.5 hover:bg-charcoal"
