@@ -112,7 +112,7 @@ const fragmentShader = /* glsl */ `
 `
 
 function Cloth({ compact, still }) {
-  const { viewport } = useThree()
+  const { viewport, size } = useThree()
   const mat = useRef()
   const state = useRef({ push: 0, pushTarget: 0, mouse: new THREE.Vector2(0.5, 0.5), mouseTarget: new THREE.Vector2(0.5, 0.5), lastMove: -10, lastRipple: -10, lastRipplePos: new THREE.Vector2(-1, -1), idx: 0, lastAmbient: 0 })
 
@@ -144,9 +144,11 @@ function Cloth({ compact, still }) {
     const height = vh * (wide ? 0.86 : 0.52)
     const width = wide ? Math.min(height * 0.78, vw * 0.5) : vw * 0.9
     const x = wide ? vw / 2 - width / 2 - vw * 0.07 : 0
-    const top = vh / 2 - vh * (wide ? 0.13 : 0.1)
+    // Tablet portrait: hang the rod just below the 76px header rather than 10% down, so the cloth starts higher.
+    const tabletPortrait = !wide && size.width >= 768 && size.width <= 1024
+    const top = vh / 2 - (tabletPortrait ? 80 * (vh / size.height) : vh * (wide ? 0.13 : 0.1))
     return { width, height, x, y: top - height / 2, top, wide }
-  }, [viewport.width, viewport.height])
+  }, [viewport.width, viewport.height, size.width, size.height])
 
   const geometry = useMemo(() => new THREE.PlaneGeometry(1, 1, compact ? 90 : 160, compact ? 120 : 200), [compact])
 

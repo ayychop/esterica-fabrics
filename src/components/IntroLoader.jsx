@@ -21,14 +21,15 @@ export function introAlreadyPlayed() {
 // "Esterica Fabrics", set large and filled with Kente. Each letter wipes in from top to bottom in
 // gold, left to right, and as its wipe completes the woven cloth blooms inside it. The cloth keeps
 // drifting through the letters while the wordmark holds, then the card lifts away. All vector.
-//   0.00 to 2.56s  letters wipe in, one every 160ms (100ms + 60ms gap), easeInOutCubic
-//   to ~2.95s      Kente has bloomed in the last letter
-//   2.95 to 3.75s  hold (800ms), the cloth drifting
-//   3.75 to 4.25s  the card fades out upward
-const STEP = 0.16
-const WIPE = 0.32
-const BLOOM = 0.4
-const HOLD = 0.8
+//   0.00 to 1.94s  letters wipe in, one every 120ms (each wipe 260ms), power2.inOut
+//   to ~2.24s      Kente has bloomed in the last letter
+//   2.24 to 2.79s  hold (550ms), the cloth drifting
+//   2.79 to 3.19s  the card fades out upward
+const STEP = 0.12
+const WIPE = 0.26
+const BLOOM = 0.3
+const HOLD = 0.55
+const FADE = 0.4
 
 // Wide screens: one line. Narrow screens: Esterica over Fabrics, so the letters stay large.
 function layout() {
@@ -100,7 +101,7 @@ export default function IntroLoader({ onReveal, onDone }) {
         tl.to(blooms[i], { opacity: 1, duration: BLOOM, ease: 'power2.inOut' }, i * STEP + WIPE - 0.02)
       })
       const shown = (wipes.length - 1) * STEP + WIPE + BLOOM
-      tl.call(reveal, [], shown + HOLD).to(root.current, { opacity: 0, y: -48, duration: 0.5, ease: 'power2.inOut' }, shown + HOLD)
+      tl.call(reveal, [], shown + HOLD).to(root.current, { opacity: 0, y: -48, duration: FADE, ease: 'power2.inOut' }, shown + HOLD)
     }, root)
 
     // Development only: tests can hold the intro (window.__introHold) and scrub its timeline.
