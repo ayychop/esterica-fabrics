@@ -16,19 +16,16 @@ function ukNow(date = new Date()) {
   return { day: DAYS.indexOf(get('weekday')), minutes: Number(get('hour')) * 60 + Number(get('minute')) }
 }
 
-// The current time in London, e.g. "2:34pm"
+// The current time in London, e.g. "14:32"
 export function ukClock(date = new Date()) {
-  return new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/London', hour: 'numeric', minute: '2-digit', hour12: true })
-    .format(date)
-    .replace(/\s/g, '')
-    .toLowerCase()
+  return new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/London', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(date)
 }
 
-export function openStatus(date) {
+export function openStatus(date = new Date()) {
   const { day, minutes } = ukNow(date)
   const weekday = day >= 1 && day <= 5
   if (weekday && minutes >= OPEN_MIN && minutes < CLOSE_MIN) {
-    return { open: true, label: 'Open now', detail: `${ukClock(date)}, until 5pm` }
+    return { open: true, label: 'Open now', detail: ukClock(date) }
   }
   let next
   if (weekday && minutes < OPEN_MIN) next = 'today'
