@@ -141,7 +141,8 @@ function Site() {
     <>
       {intro && <IntroLoader onReveal={onReveal} onDone={onIntroDone} />}
       <div ref={topSentinel} aria-hidden="true" className="pointer-events-none absolute left-0 top-0 h-10 w-px" />
-      {longPage && <div id="fold" aria-hidden="true" className="pointer-events-none absolute left-0 top-[140vh] h-px w-px" />}
+      {/* Tall, so it starts on screen: a fast fling past it still registers, which a 1px marker below the fold would not. */}
+      {longPage && <div id="fold" aria-hidden="true" className="pointer-events-none absolute left-0 top-0 h-[140vh] w-px" />}
       <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[70] focus:rounded focus:bg-gold focus:px-4 focus:py-2 focus:text-ink">
         Skip to content
       </a>
@@ -154,7 +155,7 @@ function Site() {
 
       <CartToast />
       <WhatsAppOrb />
-      <MobileBar />
+      <MobileBar showTop={showBackToTop} />
       <BackToTop visible={showBackToTop} />
       <CookieBanner />
       <LegalModal which={legal} onClose={closeLegal} />

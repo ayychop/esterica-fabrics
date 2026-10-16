@@ -7,7 +7,8 @@ import { whatsappLink } from '../config'
 
 const spring = { type: 'spring', stiffness: 380, damping: 34 }
 
-// The WhatsApp orb: always present, bottom right, with a slow heartbeat. On phones it sits above the quick action bar.
+// The WhatsApp orb: bottom right, with a slow heartbeat. Tablet and desktop only: on phones the quick action bar
+// already carries a WhatsApp button, and a second one floating over the page only covered content.
 export function WhatsAppOrb() {
   return (
     <motion.a
@@ -15,7 +16,7 @@ export function WhatsAppOrb() {
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Enquire on WhatsApp"
-      className="group fixed bottom-[88px] right-5 z-50 md:bottom-8 md:right-8"
+      className="group fixed bottom-8 right-8 z-50 hidden md:block"
       style={{ marginBottom: 'env(safe-area-inset-bottom)' }}
       initial={{ opacity: 0, scale: 0.4 }}
       animate={{ opacity: 1, scale: 1 }}
@@ -35,7 +36,8 @@ export function WhatsAppOrb() {
   )
 }
 
-// Standard 12: back to top, bottom right, after the hero.
+// Standard 12: back to top, bottom right, after the hero. Tablet and desktop only: on phones it lives in the
+// quick action bar, because a floating button there always ended up over some card or button.
 export function BackToTop({ visible }) {
   const { scrollTo } = useSmoothScroll()
   return (
@@ -45,7 +47,7 @@ export function BackToTop({ visible }) {
           type="button"
           aria-label="Back to top"
           onClick={() => scrollTo(0)}
-          className="fixed bottom-[164px] right-[29px] z-40 grid h-11 w-11 place-items-center rounded-full border border-gold/50 bg-charcoal/90 text-gold shadow-xl backdrop-blur transition-colors hover:bg-gold hover:text-ink md:bottom-[118px] md:right-[43px]"
+          className="fixed bottom-[118px] right-[43px] z-40 hidden h-11 w-11 place-items-center rounded-full border border-gold/50 bg-charcoal/90 text-gold shadow-xl backdrop-blur transition-colors hover:bg-gold hover:text-ink md:grid"
           style={{ marginBottom: 'env(safe-area-inset-bottom)' }}
           initial={{ opacity: 0, scale: 0.6, y: 12 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -70,7 +72,7 @@ export function CookieBanner() {
         <motion.div
           role="dialog"
           aria-label="Cookie preferences"
-          className="fixed inset-x-3 bottom-[164px] z-50 mx-auto max-w-md border border-dashed border-gold/40 bg-charcoal p-6 text-cream shadow-2xl md:bottom-8 md:left-8 md:right-auto md:mx-0"
+          className="fixed inset-x-3 bottom-[96px] z-50 mx-auto max-w-md border border-dashed border-gold/40 bg-charcoal p-6 text-cream shadow-2xl md:bottom-8 md:left-8 md:right-auto md:mx-0"
           style={{ marginBottom: 'env(safe-area-inset-bottom)' }}
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
