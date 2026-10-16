@@ -1,17 +1,22 @@
 import { useEffect, useRef, useState } from 'react'
-import { SectionHeading, Photo, Reveal, ArrowIcon, WhatsAppIcon } from './ui'
-import { FABRICS, img, whatsappLink } from '../config'
+import { SectionHeading, Photo, Reveal, ArrowIcon, BagIcon, WhatsAppIcon } from './ui'
+import { img, whatsappLink } from '../config'
+import { PRODUCTS as FABRICS } from '../data/products'
+import { perMetreLabel } from '../lib/pricing'
+import { Link } from '../lib/router'
 
 // Each cloth is laid down by hand, so each sits at its own slight angle.
 const ANGLES = [-3, 2.5, -2, 4, 3, -4, 2, -2.5]
 
 function Swatch({ fabric, index }) {
-  const message = `Hi Esterica Fabrics, I'm interested in the ${fabric.name} kente fabric. Could you tell me about availability and pricing? I'd like ___ metres.`
+  const href = `/shop/${fabric.slug}`
   return (
     <Reveal as="article" y={40} delay={(index % 4) * 0.08} className={`swatch w-[68%] shrink-0 snap-center sm:w-[44%] md:w-auto ${index % 2 ? 'md:mt-16' : ''}`}>
       <div className="px-1.5 pt-1.5" style={{ transform: `rotate(${ANGLES[index % ANGLES.length]}deg)` }}>
         <div className="swatch-cloth relative shadow-[0_22px_40px_-18px_rgba(10,10,10,0.55),0_6px_12px_-6px_rgba(10,10,10,0.25)]">
-          <Photo className="aspect-[4/5] w-full" src={img(fabric.id, 520, 650)} alt={`${fabric.name} Kente cloth`} />
+          <Link to={href} tabIndex={-1} aria-hidden="true" className="block">
+            <Photo className="aspect-[4/5] w-full" src={img(fabric.imageId, 520, 650)} alt={`${fabric.name} Kente cloth`} />
+          </Link>
           {/* light catching the cloth when touched */}
           <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-[2] overflow-hidden">
             <div className="swatch-sheen absolute inset-y-0 w-1/3 bg-gradient-to-r from-transparent via-cream/30 to-transparent" />
@@ -20,16 +25,16 @@ function Swatch({ fabric, index }) {
       </div>
       <div className="mt-6 px-1">
         <h3 className="font-serif text-xl font-semibold leading-tight text-charcoal md:text-[1.4rem]">{fabric.name}</h3>
-        <p className="mt-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-charcoal/55">Sold by the metre</p>
-        <a
-          href={whatsappLink(message)}
-          target="_blank"
-          rel="noopener noreferrer"
+        <p className="mt-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-charcoal/55">
+          <span className="font-serif text-[15px] normal-case tracking-normal text-charcoal">{perMetreLabel(fabric.perMetre)}</span> per metre
+        </p>
+        <Link
+          to={href}
           className="group/link mt-3 inline-flex items-center gap-1.5 text-[13px] font-bold text-crimson transition-colors hover:text-charcoal"
-          aria-label={`Enquire about ${fabric.name} on WhatsApp`}
+          aria-label={`Shop ${fabric.name}`}
         >
-          Enquire <ArrowIcon className="h-3.5 w-3.5 transition-transform group-hover/link:translate-x-1" />
-        </a>
+          Shop this cloth <ArrowIcon className="h-3.5 w-3.5 transition-transform group-hover/link:translate-x-1" />
+        </Link>
       </div>
     </Reveal>
   )
@@ -59,7 +64,7 @@ export default function Collection() {
           <Reveal delay={0.1} className="lg:col-span-5 lg:col-start-8">
             <p className="accent text-[1.7rem] leading-snug text-charcoal/85">Every cloth tells a story. Every metre is unique.</p>
             <p className="mt-4 max-w-md text-[15px] leading-relaxed text-charcoal/65">
-              No two bolts are alike, so we keep no price list online. Tell us which cloth caught your eye and we will reply with availability and pricing.
+              No two bolts are alike. Every cloth is priced by the metre in the shop, from everyday prints to designer weaves, with bulk savings from 5 metres.
             </p>
           </Reveal>
         </div>
@@ -83,7 +88,10 @@ export default function Collection() {
           <span className="accent text-lg text-charcoal/55">Swipe →</span>
         </div>
 
-        <Reveal className="mt-10 md:mt-12">
+        <Reveal className="mt-10 flex flex-col gap-3 sm:flex-row md:mt-12">
+          <Link to="/shop" className="btn-gold">
+            <BagIcon /> Shop the full collection
+          </Link>
           <a href={whatsappLink("Hi Esterica Fabrics, I'd like to ask what's in stock at the moment.")} target="_blank" rel="noopener noreferrer" className="btn-outline-dark">
             <WhatsAppIcon /> Ask what's in stock
           </a>

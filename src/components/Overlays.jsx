@@ -7,7 +7,7 @@ import { whatsappLink } from '../config'
 
 const spring = { type: 'spring', stiffness: 380, damping: 34 }
 
-// The WhatsApp orb: always present, bottom right, with a slow heartbeat.
+// The WhatsApp orb: always present, bottom right, with a slow heartbeat. On phones it sits above the quick action bar.
 export function WhatsAppOrb() {
   return (
     <motion.a
@@ -15,7 +15,7 @@ export function WhatsAppOrb() {
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Enquire on WhatsApp"
-      className="group fixed bottom-5 right-5 z-50 md:bottom-8 md:right-8"
+      className="group fixed bottom-[88px] right-5 z-50 md:bottom-8 md:right-8"
       style={{ marginBottom: 'env(safe-area-inset-bottom)' }}
       initial={{ opacity: 0, scale: 0.4 }}
       animate={{ opacity: 1, scale: 1 }}
@@ -45,7 +45,7 @@ export function BackToTop({ visible }) {
           type="button"
           aria-label="Back to top"
           onClick={() => scrollTo(0)}
-          className="fixed bottom-[96px] right-[29px] z-40 grid h-11 w-11 place-items-center rounded-full border border-gold/50 bg-charcoal/90 text-gold shadow-xl backdrop-blur transition-colors hover:bg-gold hover:text-ink md:bottom-[118px] md:right-[43px]"
+          className="fixed bottom-[164px] right-[29px] z-40 grid h-11 w-11 place-items-center rounded-full border border-gold/50 bg-charcoal/90 text-gold shadow-xl backdrop-blur transition-colors hover:bg-gold hover:text-ink md:bottom-[118px] md:right-[43px]"
           style={{ marginBottom: 'env(safe-area-inset-bottom)' }}
           initial={{ opacity: 0, scale: 0.6, y: 12 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -70,7 +70,7 @@ export function CookieBanner() {
         <motion.div
           role="dialog"
           aria-label="Cookie preferences"
-          className="fixed inset-x-3 bottom-24 z-50 mx-auto max-w-md border border-dashed border-gold/40 bg-charcoal p-6 text-cream shadow-2xl md:bottom-8 md:left-8 md:right-auto md:mx-0"
+          className="fixed inset-x-3 bottom-[164px] z-50 mx-auto max-w-md border border-dashed border-gold/40 bg-charcoal p-6 text-cream shadow-2xl md:bottom-8 md:left-8 md:right-auto md:mx-0"
           style={{ marginBottom: 'env(safe-area-inset-bottom)' }}
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
@@ -114,9 +114,9 @@ const LEGAL = {
   terms: {
     title: 'Terms',
     body: [
-      'All fabrics are sold by the metre and a minimum order applies. Prices and availability are confirmed with you directly before any order is placed.',
+      'All fabrics are sold by the metre, cut to length in half metres. Prices shown online include any bulk discount. Every order is confirmed with you directly, including stock and payment, before it is cut.',
       'Because every cloth is woven by hand, colours and patterns may vary slightly from photographs.',
-      'We post to addresses in the UK and Ireland. Postage is calculated at the time of order. Collection is free from our Wembley unit during opening hours.',
+      'We post to addresses in the UK and Ireland. Standard UK post is £4.95, free on orders over £75. Postage to Ireland is quoted with your order. Click & Collect from our Wembley unit is free during opening hours.',
       'Full terms of sale will be provided with your order confirmation.',
     ],
   },

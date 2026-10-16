@@ -6,7 +6,7 @@ export default function Footer({ onLegal }) {
   const { openSettings } = useConsent()
   const linkCls = 'text-cream/70 underline-offset-4 transition-colors hover:text-gold hover:underline'
   return (
-    <footer className="bg-ink pb-20 text-cream md:pb-0">
+    <footer className="bg-ink pb-24 text-cream md:pb-0">
       <div className="container-site grid grid-cols-2 gap-x-6 gap-y-8 py-10 md:grid-cols-4 md:py-12">
         <div className="col-span-2">
           <Logo layout="stacked" className="h-20 w-auto md:h-24" />

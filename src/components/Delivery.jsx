@@ -26,8 +26,8 @@ const Shopfront = () => (
 )
 
 const ITEMS = [
-  { art: <Parcel />, label: 'By post', title: 'UK & Ireland Post', text: 'We ship anywhere in the UK and Ireland. Postage calculated at the time of order.', from: -140 },
-  { art: <Shopfront />, label: 'In person', title: 'Collect in Store', text: 'Free collection from our Wembley unit during opening hours.', from: 140 },
+  { art: <Parcel />, label: 'By post', title: 'UK & Ireland Post', text: 'Standard UK post is £4.95, free on orders over £75, and arrives in 2 to 3 business days. Ireland postage is quoted with your order.', from: -140 },
+  { art: <Shopfront />, label: 'In person', title: 'Collect in Store', text: 'Choose Click & Collect at checkout and collect free from our Wembley unit during opening hours.', from: 140 },
 ]
 
 export default function Delivery() {

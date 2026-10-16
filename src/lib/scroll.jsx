@@ -54,10 +54,22 @@ export function SmoothScrollProvider({ children }) {
     }
   }
 
+  // Instant move after a page change: no smooth travel between pages.
+  const jump = (target) => {
+    const lenis = lenisRef.current
+    if (lenis) {
+      lenis.resize()
+      lenis.scrollTo(target, { offset: typeof target === 'number' ? 0 : ANCHOR_OFFSET, immediate: true, force: true })
+    } else {
+      const top = typeof target === 'number' ? target : target.getBoundingClientRect().top + window.scrollY + ANCHOR_OFFSET
+      window.scrollTo({ top, behavior: 'auto' })
+    }
+  }
+
   const stop = () => lenisRef.current?.stop()
   const start = () => lenisRef.current?.start()
 
-  return <ScrollContext.Provider value={{ scrollTo, stop, start }}>{children}</ScrollContext.Provider>
+  return <ScrollContext.Provider value={{ scrollTo, jump, stop, start }}>{children}</ScrollContext.Provider>
 }
 
 export const useSmoothScroll = () => useContext(ScrollContext)

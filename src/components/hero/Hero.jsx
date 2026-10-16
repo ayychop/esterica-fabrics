@@ -1,7 +1,8 @@
 import { Component, Suspense, forwardRef, lazy, useEffect, useImperativeHandle, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
-import { WhatsAppIcon, PinIcon } from '../ui'
+import { WhatsAppIcon, BagIcon } from '../ui'
 import { whatsappLink } from '../../config'
+import { Link } from '../../lib/router'
 import OpenBadge from '../OpenBadge'
 
 const FabricCanvas = lazy(() => import('./FabricCanvas'))
@@ -95,11 +96,11 @@ const Hero = forwardRef(function Hero({ ready }, ref) {
             Handpicked fabrics for tailors, designers, and lovers of African heritage.
           </motion.p>
           <motion.div {...show(0.64)} className="pointer-events-auto mt-10 flex flex-col gap-3 sm:flex-row sm:gap-4">
-            <a href={whatsappLink()} target="_blank" rel="noopener noreferrer" className="btn-gold">
+            <Link to="/shop" className="btn-gold">
+              <BagIcon /> Shop the Collection
+            </Link>
+            <a href={whatsappLink()} target="_blank" rel="noopener noreferrer" className="btn-outline-light">
               <WhatsAppIcon /> Enquire on WhatsApp
-            </a>
-            <a href="#visit" className="btn-outline-light">
-              <PinIcon /> Visit Us
             </a>
           </motion.div>
         </div>

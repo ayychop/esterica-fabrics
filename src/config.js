@@ -31,7 +31,9 @@ export const FABRICS = [
   { name: 'Akwaaba Bloom', id: '1784123476742-de48239d2fb0' },
 ]
 
+// Shop is its own page; the rest are sections of the home page.
 export const NAV_LINKS = [
+  { id: 'shop', label: 'Shop', to: '/shop' },
   { id: 'collection', label: 'Collection' },
   { id: 'order', label: 'How to Order' },
   { id: 'visit', label: 'Visit Us' },

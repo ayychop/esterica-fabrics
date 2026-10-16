@@ -6,9 +6,9 @@ import { NUMERALS } from './numeralPaths'
 import { whatsappLink } from '../config'
 
 const STEPS = [
-  { n: '1', title: 'Browse the collection', text: 'Explore the collection online or in store and choose the cloth that speaks to you.' },
-  { n: '2', title: 'Send us a WhatsApp', text: 'Tell us the fabric name and how many metres you need.' },
-  { n: '3', title: 'We confirm availability and pricing', text: 'You hear back from a real person, usually the same day.' },
+  { n: '1', title: 'Choose your cloth', text: 'Browse the shop online, or visit us in Wembley and feel the weave for yourself.' },
+  { n: '2', title: 'Add to cart, or send a WhatsApp', text: 'Pick your metres and check out on WhatsApp, or simply message us the fabric name and how many metres you need.' },
+  { n: '3', title: 'We confirm your order', text: 'A real person checks stock and sends payment details, usually the same day.' },
   { n: '4', title: 'Collect or have it posted', text: 'Collect in store, or we post it to you anywhere in the UK and Ireland.' },
 ]
 
@@ -55,7 +55,7 @@ export default function HowToOrder() {
               How to Order
               <span className="accent mt-2 block pl-[0.4em] text-[0.62em] font-medium leading-none text-crimson">by conversation</span>
             </h2>
-            <p className="mt-7 max-w-sm text-[16px] leading-[1.8] text-ink/80">No baskets and no checkouts. Ordering cloth should feel like visiting a good tailor.</p>
+            <p className="mt-7 max-w-sm text-[16px] leading-[1.8] text-ink/80">Shop online or simply message us. Either way, ordering cloth should feel like visiting a good tailor.</p>
             <a
               href={whatsappLink("Hi Esterica Fabrics, I'd like to place an order.")}
               target="_blank"

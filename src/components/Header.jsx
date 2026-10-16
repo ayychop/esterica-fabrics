@@ -2,9 +2,11 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import Logo from './Logo'
 import { KenteStrip } from './Kente'
-import { PhoneIcon } from './ui'
+import { BagIcon, PhoneIcon } from './ui'
 import { NAV_LINKS, PHONE_DISPLAY, PHONE_TEL } from '../config'
 import { useSmoothScroll } from '../lib/scroll'
+import { Link } from '../lib/router'
+import { useCart } from '../lib/cart'
 
 const MenuIcon = ({ className = 'h-5 w-5' }) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" className={className} aria-hidden="true">
@@ -21,8 +23,40 @@ const CloseIcon = ({ className = 'h-5 w-5' }) => (
 const roundBtn =
   'grid h-10 w-10 place-items-center rounded-full border border-cream/30 text-cream transition-colors hover:border-gold hover:text-gold'
 
+// Sections live on the home page: from any other page their links lead back home first.
+const hrefFor = (l, home) => l.to ?? (home ? `#${l.id}` : `/#${l.id}`)
+
+// In-page anchors stay plain links (Lenis scrolls them); links to other pages go through the router.
+function NavLink({ href, ...props }) {
+  return href.startsWith('/') ? <Link to={href} {...props} /> : <a href={href} {...props} />
+}
+
+function CartButton({ className = '' }) {
+  const { count } = useCart()
+  return (
+    <Link to="/cart" aria-label={count ? `Cart, ${count} ${count === 1 ? 'item' : 'items'}` : 'Cart, empty'} className={`relative ${roundBtn} ${className}`}>
+      <BagIcon className="h-[19px] w-[19px]" />
+      <AnimatePresence>
+        {count > 0 && (
+          <motion.span
+            key={count}
+            aria-hidden="true"
+            className="absolute -right-1.5 -top-1.5 grid h-[21px] min-w-[21px] place-items-center rounded-full bg-crimson px-1 text-[11px] font-bold leading-none text-cream ring-2 ring-charcoal"
+            initial={{ scale: 0.3 }}
+            animate={{ scale: 1 }}
+            exit={{ scale: 0 }}
+            transition={{ type: 'spring', stiffness: 520, damping: 18 }}
+          >
+            {count}
+          </motion.span>
+        )}
+      </AnimatePresence>
+    </Link>
+  )
+}
+
 // No WhatsApp button here: the gold orb carries that job on every screen.
-export default function Header({ solid, activeId }) {
+export default function Header({ solid, activeId, home = true }) {
   const [open, setOpen] = useState(false)
   const toggleRef = useRef(null)
   const closeRef = useRef(null)
@@ -63,17 +97,17 @@ export default function Header({ solid, activeId }) {
         style={{ paddingTop: 'env(safe-area-inset-top)' }}
       >
         <div className="container-site flex h-16 items-center justify-between md:h-[76px]">
-          <a href="#top" aria-label="Esterica Fabrics, back to top" className="block">
+          <NavLink href={home ? '#top' : '/'} aria-label={home ? 'Esterica Fabrics, back to top' : 'Esterica Fabrics, home'} className="block">
             <Logo className="h-9 w-auto md:h-11" />
-          </a>
+          </NavLink>
           <nav aria-label="Sections" className="hidden lg:block">
-            <ul className="flex items-center gap-7">
+            <ul className="flex items-center gap-5 xl:gap-7">
               {NAV_LINKS.map((l) => (
                 <li key={l.id}>
-                  <a
-                    href={`#${l.id}`}
+                  <NavLink
+                    href={hrefFor(l, home)}
                     aria-current={activeId === l.id ? 'true' : undefined}
-                    className={`group relative text-[12px] font-semibold uppercase tracking-[0.2em] transition-colors ${
+                    className={`group relative text-[11.5px] font-semibold uppercase tracking-[0.14em] transition-colors xl:text-[12px] xl:tracking-[0.2em] ${
                       activeId === l.id ? 'text-gold' : 'text-cream/75 hover:text-cream'
                     }`}
                   >
@@ -84,12 +118,16 @@ export default function Header({ solid, activeId }) {
                         activeId === l.id ? 'scale-x-100 border-solid' : 'scale-x-0 group-hover:scale-x-100'
                       }`}
                     />
-                  </a>
+                  </NavLink>
                 </li>
               ))}
+              <li>
+                <CartButton />
+              </li>
             </ul>
           </nav>
           <div className="flex items-center gap-2.5 lg:hidden">
+            <CartButton />
             <a href={`tel:${PHONE_TEL}`} aria-label="Call Esterica Fabrics" className={roundBtn}>
               <PhoneIcon className="h-[18px] w-[18px]" />
             </a>
@@ -128,9 +166,9 @@ export default function Header({ solid, activeId }) {
           >
             <KenteStrip height={10} className="absolute inset-x-0 top-0" />
             <div className="container-site flex h-16 shrink-0 items-center justify-between md:h-[76px]">
-              <a href="#top" aria-label="Esterica Fabrics, back to top" onClick={close} className="block">
+              <NavLink href={home ? '#top' : '/'} aria-label={home ? 'Esterica Fabrics, back to top' : 'Esterica Fabrics, home'} onClick={close} className="block">
                 <Logo className="h-9 w-auto md:h-11" />
-              </a>
+              </NavLink>
               <button ref={closeRef} type="button" aria-label="Close menu" onClick={close} className={roundBtn}>
                 <CloseIcon />
               </button>
@@ -146,8 +184,8 @@ export default function Header({ solid, activeId }) {
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.05 + i * 0.04, duration: 0.35 }}
                     >
-                      <a
-                        href={`#${l.id}`}
+                      <NavLink
+                        href={hrefFor(l, home)}
                         onClick={close}
                         aria-current={activeId === l.id ? 'true' : undefined}
                         className={`inline-flex items-baseline gap-4 py-2 font-serif text-[32px] font-semibold leading-tight transition-colors sm:text-[40px] ${
@@ -158,7 +196,7 @@ export default function Header({ solid, activeId }) {
                           {String(i + 1).padStart(2, '0')}
                         </span>
                         {l.label}
-                      </a>
+                      </NavLink>
                     </motion.li>
                   ))}
                 </ul>

@@ -4,12 +4,12 @@ import { SectionHeading, Reveal } from './ui'
 import { WovenRule } from './Kente'
 
 const FAQS = [
-  ['Do you sell by the metre?', 'Yes, all fabrics are sold by the metre. Minimum order applies.'],
+  ['Do you sell by the metre?', 'Yes, all fabrics are sold by the metre and cut to length in half metres.'],
   ['Can I see the fabric before buying?', 'Absolutely. Pop in during opening hours.'],
   ['Do you ship internationally?', 'Currently we ship to the UK and Ireland only. Get in touch for other requests.'],
-  ['How do I place an order?', 'Message us on WhatsApp with the fabric name and metres you need.'],
-  ['Do you offer bulk or trade pricing?', 'Yes. Tailors, designers and event planners, please enquire directly.'],
-  ['How long does delivery take?', 'UK delivery is usually 2 to 4 working days.'],
+  ['How do I place an order?', 'Add fabrics to your cart and check out on WhatsApp, or message us with the fabric name and metres you need.'],
+  ['Do you offer bulk or trade pricing?', 'Yes. 5 metres or more of one cloth is 10% off and 10 metres or more is 15% off, applied automatically. For 20 metres or more, ask us for trade pricing.'],
+  ['How long does delivery take?', 'UK delivery takes 2 to 3 business days. Standard post is £4.95, free on orders over £75.'],
 ]
 
 const EASE = [0.22, 1, 0.36, 1]
