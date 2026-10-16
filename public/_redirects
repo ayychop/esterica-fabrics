@@ -1,0 +1,3 @@
+# Single page app: serve index.html for every path (/shop, /shop/royal-gold, /cart...).
+# Real files such as /og-image.png and /assets/* are served first and are not affected.
+/*    /index.html   200
