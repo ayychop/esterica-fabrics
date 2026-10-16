@@ -6,3 +6,4 @@ dist
 .claude/settings.local.json
 .claude/*.log
 .claude/cache/
+.claude/skills/impeccable/scripts/bin/
