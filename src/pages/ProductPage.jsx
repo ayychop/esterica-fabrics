@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import ProductCard, { TierBadge } from '../components/shop/ProductCard'
 import QuantitySelector from '../components/shop/QuantitySelector'
 import WeaveDivider from '../components/WeaveDivider'
-import { Photo, Reveal, BagIcon, PinIcon, StarIcon, TruckIcon, WhatsAppIcon } from '../components/ui'
+import { Photo, Reveal, BagIcon, PinIcon, TruckIcon, WhatsAppIcon } from '../components/ui'
 import { TRADE_MESSAGE } from '../components/Trade'
 import { Link } from '../lib/router'
 import { useCart } from '../lib/cart'
@@ -57,15 +57,12 @@ function Gallery({ product }) {
   )
 }
 
-function Rating() {
+// A plain statement of who the cloth is chosen for. No ratings until there are real reviews to show.
+function TrustLine() {
   return (
-    <p className="flex items-center gap-2 text-[14px] text-charcoal/75">
-      <span className="flex text-gold-dark" aria-hidden="true">
-        {[0, 1, 2, 3, 4].map((i) => <StarIcon key={i} className="h-4 w-4" />)}
-      </span>
-      <span>
-        Rated <strong className="text-charcoal">4.8</strong> by tailors and designers
-      </span>
+    <p className="flex items-center gap-2.5 text-charcoal/80">
+      <span aria-hidden="true" className="h-2 w-2 shrink-0 rotate-45 bg-gold-dark" />
+      <span className="accent text-[1.2rem] leading-snug">Inspired by tailors, designers, and lovers of African heritage.</span>
     </p>
   )
 }
@@ -116,7 +113,7 @@ export default function ProductPage({ product }) {
               <p className="mt-3 flex items-start gap-2 text-[15px] text-charcoal/75">
                 <PinIcon className="mt-0.5 h-[18px] w-[18px] shrink-0 text-crimson" /> {product.origin}
               </p>
-              <div className="mt-4"><Rating /></div>
+              <div className="mt-4"><TrustLine /></div>
 
               <p className="mt-7 flex items-baseline gap-3 border-y border-dashed border-charcoal/25 py-5">
                 <span className="font-serif text-[3.4rem] font-bold leading-none text-charcoal md:text-[4rem]">{perMetreLabel(product.perMetre)}</span>
