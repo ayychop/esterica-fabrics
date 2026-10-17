@@ -18,7 +18,8 @@ function tick() {
 const onVisible = () => document.visibilityState === 'visible' && tick()
 
 function useOpenStatus() {
-  const [status, setStatus] = useState(current)
+  // Start from the real status, not null, so a badge never flashes an empty placeholder on mount.
+  const [status, setStatus] = useState(() => current ?? openStatus())
   useEffect(() => {
     if (listeners.size === 0) {
       tick()
@@ -50,14 +51,12 @@ export default function OpenBadge({ large = false, className = '' }) {
 
   return (
     <p
-      role="status"
-      aria-live="polite"
       className={`inline-flex items-center whitespace-nowrap rounded-full border-[1.5px] bg-charcoal/90 font-semibold uppercase leading-none tracking-[0.22em] text-cream backdrop-blur-sm ${tone.border} ${
         large ? 'gap-3 px-[18px] py-[8px] text-[12.5px]' : 'gap-2.5 px-3.5 py-[6px] text-[10.5px]'
       } ${className}`}
     >
       <span className={`relative flex ${large ? 'h-[8.5px] w-[8.5px]' : 'h-[7px] w-[7px]'}`}>
-        <span className={`absolute inline-flex h-full w-full animate-ping rounded-full opacity-60 ${tone.dot}`} />
+        {status.open && <span className={`absolute inline-flex h-full w-full animate-ping rounded-full opacity-60 motion-reduce:animate-none ${tone.dot}`} />}
         <span className={`relative inline-flex h-full w-full rounded-full ${tone.dot}`} />
       </span>
       <span>

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { SectionHeading, Reveal, WhatsAppIcon, PhoneIcon } from './ui'
-import { KenteWatermark, kenteDataUri } from './Kente'
+import { KenteWatermark } from './Kente'
 import { FABRICS, PHONE_DISPLAY, PHONE_TEL, whatsappLink } from '../config'
 
 const field = 'field border-cream/35 text-cream placeholder:text-cream/35 focus:border-gold'
@@ -33,7 +33,7 @@ export default function Contact() {
       <div className="container-site relative grid gap-12 lg:grid-cols-12">
         <div className="lg:col-span-5">
           <SectionHeading eyebrow="Get in touch" title="Make an Enquiry" accent="we reply in person" dark size="sm" className="!mb-3" />
-          <p className="mb-7 text-[12px] font-semibold uppercase tracking-[0.18em] text-gold-light">We reply quickest on WhatsApp during opening hours.</p>
+          <p className="mb-7 text-[12px] font-semibold uppercase tracking-[0.18em] text-gold-light [text-wrap:balance]">We reply quickest on WhatsApp during opening hours.</p>
           <Reveal delay={0.1}>
             <p className="max-w-sm text-[17px] leading-relaxed text-cream/75">
               Tell us what you are making and we will help you choose.
@@ -45,8 +45,6 @@ export default function Contact() {
         </div>
 
         <Reveal delay={0.15} className="relative lg:col-span-6 lg:col-start-7">
-          {/* Kente weave at 4% behind the form */}
-          <div aria-hidden="true" className="pointer-events-none absolute -inset-6 -z-0 rounded-2xl opacity-[0.04] md:-inset-10" style={{ backgroundImage: kenteDataUri, backgroundSize: '128px 48px' }} />
           <form onSubmit={submit} className="relative grid grid-cols-2 gap-x-5 gap-y-6 sm:gap-x-8">
             <div>
               <label htmlFor="c-name" className={label}>Your name</label>

@@ -5,6 +5,9 @@ export const WHATSAPP_NUMBER = '447921654755'
 
 export const ADDRESS_LINES = ['Access Self Storage', 'First Way, Wembley', 'Unit 5580']
 export const ADDRESS_QUERY = 'Access Self Storage, First Way, Wembley'
+// Instagram profile, e.g. 'https://www.instagram.com/<handle>/'. The "Follow us on Instagram" button appears once this is set.
+export const INSTAGRAM_URL = ''
+
 export const HOURS = 'Monday to Friday, 11:00am to 5:00pm'
 
 export const MAP_EMBED_URL = `https://www.google.com/maps?q=${encodeURIComponent(ADDRESS_QUERY)}&output=embed`

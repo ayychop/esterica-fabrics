@@ -13,11 +13,13 @@ const STEPS = [
 ]
 
 // Big, clear Arabic numerals (Playfair Display Bold, lining figures). Each outline draws itself on,
-// then fills solid: bold and easy to read at a glance.
+// then fills solid: bold and easy to read at a glance. A gold halo in the numeral's own shape sits beneath it,
+// so the thread passes behind the figure without a block of flat colour cutting into the Kente texture.
 function Numeral({ value }) {
   const g = NUMERALS[value]
   return (
     <svg aria-hidden="true" viewBox={`-6 -6 ${g.w + 12} 86`} className="h-20 w-auto overflow-visible md:h-[8.25rem]">
+      <path d={g.d} fill="#E8B31A" stroke="#E8B31A" strokeWidth="16" strokeLinejoin="round" />
       <motion.path
         d={g.d}
         stroke="#C41E1E"
@@ -77,12 +79,12 @@ export default function HowToOrder() {
           {STEPS.map((s, i) => (
             <motion.li
               key={s.title}
-              className="relative grid grid-cols-[6.5rem_1fr] items-center gap-4 py-3 md:grid-cols-[10rem_1fr] md:gap-8 md:py-2"
+              className="relative grid grid-cols-[6.5rem_1fr] items-start gap-4 py-3 md:grid-cols-[10rem_1fr] md:gap-8 md:py-2 lg:items-center"
               initial="hidden"
               whileInView="shown"
               viewport={{ once: true, amount: 0.6 }}
             >
-              <span className="relative flex justify-center bg-gold py-1">
+              <span className="relative flex justify-center">
                 <Numeral value={s.n} />
                 <span className="sr-only">Step {s.n}</span>
               </span>

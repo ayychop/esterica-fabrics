@@ -46,16 +46,18 @@ export function Stepper({ value, onChange, max = 999, label = 'Metres', size = '
 }
 
 // Presets for the common lengths, or a custom length in half metres.
-export default function QuantitySelector({ value, onChange }) {
+export default function QuantitySelector({ value, onChange, dark = false }) {
   const [custom, setCustom] = useState(!PRESETS.includes(value))
   const chip = (on) =>
     `min-h-[46px] min-w-[3.5rem] border px-3 text-[15px] font-semibold transition-colors ${
-      on ? 'border-charcoal bg-charcoal text-gold' : 'border-charcoal/25 text-charcoal hover:border-charcoal'
+      dark
+        ? on ? 'border-gold bg-gold text-ink' : 'border-cream/30 text-cream hover:border-cream'
+        : on ? 'border-charcoal bg-charcoal text-gold' : 'border-charcoal/25 text-charcoal hover:border-charcoal'
     }`
 
   return (
     <fieldset>
-      <legend className="mb-3 text-[11px] font-semibold uppercase tracking-[0.28em] text-charcoal/70">How many metres?</legend>
+      <legend className={`mb-3 text-[11px] font-semibold uppercase tracking-[0.28em] ${dark ? 'text-cream/70' : 'text-charcoal/70'}`}>How many metres?</legend>
       <div className="flex flex-wrap gap-2">
         {PRESETS.map((m) => (
           <button
@@ -77,8 +79,8 @@ export default function QuantitySelector({ value, onChange }) {
       </div>
       {custom && (
         <div className="mt-4 flex flex-wrap items-center gap-4">
-          <Stepper value={value} onChange={onChange} label="Custom metres" />
-          <p className="text-[13px] text-charcoal/60">In half metre steps</p>
+          <Stepper value={value} onChange={onChange} label="Custom metres" dark={dark} />
+          <p className={`text-[13px] ${dark ? 'text-cream/60' : 'text-charcoal/60'}`}>In half metre steps</p>
         </div>
       )}
     </fieldset>

@@ -1,3 +1,4 @@
+import { Fragment } from 'react'
 import { motion } from 'framer-motion'
 import { kenteDataUri } from './Kente'
 
@@ -6,8 +7,25 @@ const LINES = [
   { text: 'Worn across generations.', cls: 'accent text-gold', indent: 'pl-[6vw]' },
   { text: 'Carried to London, metre by metre.', cls: 'font-serif font-semibold text-cream', indent: 'pl-[2vw]' },
 ]
+// The thread laid in the gap below each line, except the last
+const THREADS = ['#E8B31A', '#0F7A34']
 
-// A short heritage statement, set huge. Each line rises out of its own woven band, once.
+// A weft thread running through the gap between two lines, never across the letters. It shows as a running
+// stitch (over, under, over) and is drawn left to right once, uncovered rather than stretched, so the stitches keep their size.
+function Thread({ color }) {
+  return (
+    <span aria-hidden="true" className="flex h-[0.34em] items-center">
+      <motion.span
+        className="block h-[2px] w-full md:h-[3px]"
+        style={{ background: `repeating-linear-gradient(90deg, ${color} 0 22px, transparent 22px 34px)` }}
+        variants={{ hidden: { clipPath: 'inset(0 100% 0 0)' }, shown: { clipPath: 'inset(0 0% 0 0)' } }}
+        transition={{ duration: 1.3, ease: [0.65, 0, 0.35, 1] }}
+      />
+    </span>
+  )
+}
+
+// A short heritage statement, set huge. Each line rises out of its own band, once, with a thread woven between them.
 export default function Statement() {
   return (
     <section aria-label="Kente heritage" className="relative overflow-hidden bg-charcoal pb-10 pt-7 md:pb-14 md:pt-10">
@@ -33,16 +51,16 @@ export default function Statement() {
           viewport={{ once: true, amount: 0.4 }}
           variants={{ hidden: {}, shown: { transition: { staggerChildren: 0.16, delayChildren: 0.1 } } }}
         >
-          {LINES.map((l) => (
-            <span key={l.text} className={`block overflow-hidden pb-[0.08em] ${l.indent}`}>
-              <motion.span
-                className={`heading-depth-dark block ${l.cls}`}
-                variants={{ hidden: { y: '105%' }, shown: { y: 0 } }}
-                transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
-              >
-                {l.text}
-              </motion.span>
-            </span>
+          {LINES.map((l, i) => (
+            <Fragment key={l.text}>
+              {/* No text shadow here: the band's mask would clip it into a visible box */}
+              <span className={`block overflow-hidden pb-[0.08em] ${l.indent}`}>
+                <motion.span className={`block ${l.cls}`} variants={{ hidden: { y: '105%' }, shown: { y: 0 } }} transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}>
+                  {l.text}
+                </motion.span>
+              </span>
+              {THREADS[i] && <Thread color={THREADS[i]} />}
+            </Fragment>
           ))}
         </motion.p>
       </div>

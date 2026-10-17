@@ -1,12 +1,14 @@
-import { useEffect, useMemo, useState } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
-import PageIntro from '../components/shop/PageIntro'
-import ProductCard, { TIER_STYLE } from '../components/shop/ProductCard'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } from 'framer-motion'
+import FabricCard from '../components/shop/FabricCard'
 import WeaveDivider from '../components/WeaveDivider'
 import Trade from '../components/Trade'
-import { Reveal } from '../components/ui'
 import { COLOURS, OCCASIONS, PATTERNS, PRODUCTS } from '../data/products'
-import { TIERS, perMetreLabel } from '../lib/pricing'
+import { img } from '../config'
+
+// The homepage hero's curve, so the shop moves like the cloth that brought you here.
+const EASE = [0.22, 1, 0.36, 1]
+const HERO_IMAGE = '1552710307-537199cd41c0'
 
 const SORTS = {
   newest: { label: 'Newest', fn: (a, b) => b.added.localeCompare(a.added) },
@@ -14,7 +16,15 @@ const SORTS = {
   'price-desc': { label: 'Price, high to low', fn: (a, b) => b.perMetre - a.perMetre || a.name.localeCompare(b.name) },
 }
 
+const GROUPS = [
+  { key: 'occasion', legend: 'Occasion', options: OCCASIONS },
+  { key: 'colour', legend: 'Colour', options: COLOURS, swatches: true },
+  { key: 'pattern', legend: 'Pattern', options: PATTERNS },
+]
+
 const EMPTY = { occasion: null, colour: null, pattern: null }
+
+const labelOf = (opt) => (typeof opt === 'string' ? opt : opt.label)
 
 // Kept outside the component, so filters survive a visit to a product and back.
 let saved = { filters: EMPTY, sort: 'newest' }
@@ -26,7 +36,6 @@ function ChipGroup({ legend, options, value, onChange, swatches }) {
       <div className="flex flex-wrap gap-2">
         {Object.entries(options).map(([key, opt]) => {
           const on = value === key
-          const label = typeof opt === 'string' ? opt : opt.label
           return (
             <button
               key={key}
@@ -38,12 +47,60 @@ function ChipGroup({ legend, options, value, onChange, swatches }) {
               }`}
             >
               {swatches && <span aria-hidden="true" className="h-3.5 w-3.5 rounded-full ring-1 ring-cream/60" style={{ background: opt.hex }} />}
-              {label}
+              {labelOf(opt)}
             </button>
           )
         })}
       </div>
     </fieldset>
+  )
+}
+
+function ShopHero() {
+  const ref = useRef(null)
+  const still = useReducedMotion()
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] })
+  // The cloth falls away a little slower than the page as you scroll into the collection.
+  const y = useTransform(scrollYProgress, [0, 1], ['0%', still ? '0%' : '18%'])
+
+  const show = (delay) => ({
+    initial: { opacity: 0, y: 30 },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: 1.1, delay, ease: EASE },
+  })
+
+  return (
+    <section ref={ref} className="relative isolate h-[88svh] min-h-[540px] overflow-hidden bg-ink text-cream" aria-labelledby="shop-title">
+      <motion.div aria-hidden="true" className="absolute inset-0 -z-10" style={{ y }}>
+        <motion.img
+          src={img(HERO_IMAGE, 1600)}
+          srcSet={[800, 1200, 1600, 2400].map((w) => `${img(HERO_IMAGE, w)} ${w}w`).join(', ')}
+          sizes="100vw"
+          alt=""
+          fetchpriority="high"
+          decoding="async"
+          className="h-full w-full object-cover"
+          initial={{ scale: 1.08 }}
+          animate={{ scale: 1 }}
+          transition={{ duration: 2.4, ease: EASE }}
+        />
+      </motion.div>
+      {/* One flat veil, no fade: just enough to lift the cream type off the busy cloth */}
+      <div aria-hidden="true" className="absolute inset-0 -z-10 bg-ink/50" />
+
+      <div className="mx-auto flex h-full max-w-[1600px] flex-col justify-end px-5 pb-14 sm:px-8 md:pb-20 lg:px-12">
+        <motion.h1
+          id="shop-title"
+          {...show(0.1)}
+          className="heading-depth-dark font-serif text-[clamp(3.6rem,11vw,10rem)] font-semibold leading-[0.88] tracking-[-0.02em]"
+        >
+          The Collection
+        </motion.h1>
+        <motion.p {...show(0.28)} className="accent mt-5 max-w-xl text-[clamp(1.35rem,2.4vw,2rem)] leading-snug text-cream [text-wrap:balance] md:mt-7">
+          Every cloth tells a story. Every metre is unique.
+        </motion.p>
+      </div>
+    </section>
   )
 }
 
@@ -71,123 +128,131 @@ export default function ShopPage() {
     [filters, sort],
   )
 
-  const active = Object.values(filters).filter(Boolean).length
+  const active = GROUPS.filter((g) => filters[g.key])
   const set = (k) => (v) => setFilters((f) => ({ ...f, [k]: v }))
-
-  const groups = (
-    <div className="grid gap-7">
-      <ChipGroup legend="Occasion" options={OCCASIONS} value={filters.occasion} onChange={set('occasion')} />
-      <ChipGroup legend="Colour" options={COLOURS} value={filters.colour} onChange={set('colour')} swatches />
-      <ChipGroup legend="Pattern" options={PATTERNS} value={filters.pattern} onChange={set('pattern')} />
-      {active > 0 && (
-        <button type="button" onClick={() => setFilters(EMPTY)} className="justify-self-start text-[13px] font-bold text-crimson underline underline-offset-4 hover:text-charcoal">
-          Clear all filters
-        </button>
-      )}
-    </div>
-  )
+  const count = `${results.length} ${results.length === 1 ? 'fabric' : 'fabrics'}`
 
   return (
     <>
-      <PageIntro eyebrow="Kente by the metre" title="The Shop" accent="cut to your length">
-        <Reveal delay={0.1} className="mt-8 grid max-w-4xl gap-6 md:mt-10">
-          <ul className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap" aria-label="Price per metre">
-            {Object.entries(TIERS).map(([key, t]) => (
-              <li key={key} className={`flex flex-col px-3 py-2 text-[11px] font-bold uppercase tracking-[0.14em] sm:flex-row sm:items-baseline sm:text-[12px] sm:tracking-[0.16em] ${TIER_STYLE[key]}`}>
-                {t.label} <span className="font-serif text-[17px] normal-case tracking-normal sm:ml-2 sm:text-[15px]">{perMetreLabel(t.perMetre)}/m</span>
-              </li>
-            ))}
-          </ul>
-          <p className="max-w-2xl text-[15px] leading-relaxed text-cream/80">
-            Bulk savings apply automatically: <strong className="text-gold">10% off 5m or more</strong> and <strong className="text-gold">15% off 10m or more</strong> of any one cloth. Free UK delivery on orders over £75.
-          </p>
-        </Reveal>
-      </PageIntro>
-      <WeaveDivider from="#121212" to="#FAF4E4" palette="bold" />
+      <ShopHero />
 
-      <section className="bg-cream pb-16 pt-8 md:pb-24 md:pt-12" aria-label="Fabrics">
-        <div className="container-site grid gap-8 lg:grid-cols-12 lg:gap-10">
-          {/* Desktop: filters in a side column */}
-          <aside className="hidden lg:col-span-3 lg:block">
-            <div className="sticky top-28">{groups}</div>
-          </aside>
+      <section className="bg-cream pb-24 md:pb-40" aria-label="Fabrics">
+        {/* Filters and sort live in one slim bar that follows you down the collection */}
+        <div className="sticky top-16 z-30 border-b border-charcoal/15 bg-cream md:top-[76px]">
+          <div className="mx-auto flex min-h-[64px] max-w-[1600px] items-center gap-3 px-5 sm:px-8 lg:px-12">
+            <button
+              type="button"
+              onClick={() => setPanelOpen((o) => !o)}
+              aria-expanded={panelOpen}
+              aria-controls="shop-filters"
+              className="inline-flex min-h-[44px] shrink-0 items-center gap-2 text-[12px] font-bold uppercase tracking-[0.2em] text-charcoal transition-colors hover:text-crimson"
+            >
+              <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <path d="M4 6h16M7 12h10M10 18h4" />
+              </svg>
+              Filter
+              {active.length > 0 && <span className="grid h-5 min-w-5 place-items-center rounded-full bg-crimson px-1 text-[11px] tracking-normal text-cream">{active.length}</span>}
+            </button>
 
-          <div className="lg:col-span-9">
-            <div className="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-dashed border-charcoal/25 pb-4">
-              <button
-                type="button"
-                onClick={() => setPanelOpen((o) => !o)}
-                aria-expanded={panelOpen}
-                aria-controls="shop-filters"
-                className="inline-flex min-h-[44px] items-center gap-2 border border-charcoal/30 px-4 text-[13px] font-bold uppercase tracking-[0.16em] lg:hidden"
-              >
-                <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                  <path d="M4 6h16M7 12h10M10 18h4" />
-                </svg>
-                Filters{active > 0 && <span className="grid h-5 min-w-5 place-items-center rounded-full bg-crimson px-1 text-[11px] text-cream">{active}</span>}
-              </button>
-              <p className="hidden text-[14px] text-charcoal/70 lg:block" aria-live="polite">
-                {results.length} {results.length === 1 ? 'fabric' : 'fabrics'}
-              </p>
-              <label className="flex items-center gap-2 text-[13px] font-semibold text-charcoal/75">
-                Sort
-                <select
-                  value={sort}
-                  onChange={(e) => setSort(e.target.value)}
-                  className="min-h-[44px] cursor-pointer border border-charcoal/30 bg-cream px-3 text-[14px] font-semibold text-charcoal focus:border-gold focus:outline-none"
-                >
-                  {Object.entries(SORTS).map(([k, s]) => (
-                    <option key={k} value={k}>{s.label}</option>
-                  ))}
-                </select>
-              </label>
-            </div>
+            <ul className="hidden min-w-0 flex-1 flex-wrap gap-2 md:flex" aria-label="Active filters">
+              {active.map((g) => (
+                <li key={g.key}>
+                  <button
+                    type="button"
+                    onClick={() => set(g.key)(null)}
+                    className="inline-flex min-h-[32px] items-center gap-2 bg-charcoal px-3 text-[12px] font-semibold text-gold transition-colors hover:bg-crimson hover:text-cream"
+                    aria-label={`Remove filter: ${labelOf(g.options[filters[g.key]])}`}
+                  >
+                    {labelOf(g.options[filters[g.key]])}
+                    <span aria-hidden="true">×</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
 
-            <AnimatePresence initial={false}>
-              {panelOpen && (
-                <motion.div
-                  id="shop-filters"
-                  className="overflow-hidden lg:hidden"
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                >
-                  <div className="mb-8 border-b border-dashed border-charcoal/25 pb-8">{groups}</div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            <p className="mb-5 text-[14px] text-charcoal/70 lg:hidden" aria-live="polite">
-              {results.length} {results.length === 1 ? 'fabric' : 'fabrics'}
+            <p className="ml-auto shrink-0 text-[12px] font-semibold uppercase tracking-[0.2em] text-charcoal/65 max-sm:hidden" aria-live="polite">
+              {count}
             </p>
-
-            {results.length ? (
-              <motion.ul layout className="grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-6 md:grid-cols-3 md:gap-x-8 md:gap-y-14">
-                <AnimatePresence mode="popLayout" initial={false}>
-                  {results.map((p, i) => (
-                    <motion.li
-                      key={p.slug}
-                      layout
-                      initial={{ opacity: 0, scale: 0.96 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.96 }}
-                      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-                    >
-                      <ProductCard product={p} eager={i < 3} />
-                    </motion.li>
-                  ))}
-                </AnimatePresence>
-              </motion.ul>
-            ) : (
-              <div className="border border-dashed border-charcoal/30 px-6 py-14 text-center">
-                <p className="accent text-2xl text-charcoal/80">No cloth matches all of those just now.</p>
-                <button type="button" onClick={() => setFilters(EMPTY)} className="btn-outline-dark mt-6">
-                  Clear filters
-                </button>
-              </div>
-            )}
+            <label className="flex shrink-0 items-center gap-2 text-[12px] font-bold uppercase tracking-[0.2em] text-charcoal max-sm:ml-auto">
+              <span className="max-sm:sr-only">Sort</span>
+              <select
+                value={sort}
+                onChange={(e) => setSort(e.target.value)}
+                className="min-h-[44px] cursor-pointer border-0 border-b border-charcoal/30 bg-transparent pr-1 text-[14px] font-semibold normal-case tracking-normal text-charcoal focus:border-gold focus:outline-none"
+              >
+                {Object.entries(SORTS).map(([k, s]) => (
+                  <option key={k} value={k}>{s.label}</option>
+                ))}
+              </select>
+            </label>
           </div>
+
+          <AnimatePresence initial={false}>
+            {panelOpen && (
+              <motion.div
+                id="shop-filters"
+                data-lenis-prevent
+                className="max-h-[70vh] overflow-y-auto border-t border-charcoal/15"
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.4, ease: EASE }}
+              >
+                <div className="mx-auto grid max-w-[1600px] gap-7 px-5 py-8 sm:px-8 md:grid-cols-3 md:gap-10 lg:px-12">
+                  {GROUPS.map((g) => (
+                    <ChipGroup key={g.key} legend={g.legend} options={g.options} value={filters[g.key]} onChange={set(g.key)} swatches={g.swatches} />
+                  ))}
+                  <div className="flex flex-wrap items-center gap-x-6 gap-y-3 md:col-span-3">
+                    <button type="button" onClick={() => setPanelOpen(false)} className="btn !min-h-[44px] bg-charcoal !px-5 !text-[12px] text-cream hover:bg-gold hover:text-ink">
+                      Show {count}
+                    </button>
+                    {active.length > 0 && (
+                      <button type="button" onClick={() => setFilters(EMPTY)} className="text-[13px] font-bold text-crimson underline underline-offset-4 hover:text-charcoal">
+                        Clear all filters
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        <div className="mx-auto max-w-[1600px] px-5 pt-14 sm:px-8 md:pt-24 lg:px-12">
+          {results.length ? (
+            <motion.ul layout className="grid grid-cols-1 gap-y-20 md:grid-cols-2 md:gap-x-[4vw] md:gap-y-32">
+              <AnimatePresence mode="popLayout" initial={false}>
+                {results.map((p, i) => (
+                  // Every second cloth drops lower, so the two columns read like a magazine spread.
+                  <motion.li
+                    key={p.slug}
+                    layout
+                    className="md:even:pt-[18vh]"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.4, ease: EASE }}
+                  >
+                    <motion.div
+                      initial={{ opacity: 0, y: 40 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true, amount: 0.15 }}
+                      transition={{ duration: 0.9, delay: (i % 2) * 0.06, ease: EASE }}
+                    >
+                      <FabricCard product={p} index={i} eager={i < 2} />
+                    </motion.div>
+                  </motion.li>
+                ))}
+              </AnimatePresence>
+            </motion.ul>
+          ) : (
+            <div className="py-20 text-center">
+              <p className="accent text-3xl text-charcoal/80">No cloth matches all of those just now.</p>
+              <button type="button" onClick={() => setFilters(EMPTY)} className="btn-outline-dark mt-8">
+                Clear filters
+              </button>
+            </div>
+          )}
         </div>
       </section>
 

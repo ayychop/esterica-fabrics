@@ -174,6 +174,37 @@
   animation: sheen 1.1s ease-out both;
 }
 
+/* ---------- Shop cloth: a slow breath, and a gentle lean in on hover ---------- */
+/* Drawn 2% oversize so the 3-4px drift never shows an edge */
+@keyframes cloth-breathe {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1.02); }
+  50% { transform: translate3d(2px, -3px, 0) scale(1.024); }
+}
+.fabric-breathe {
+  animation: cloth-breathe 5s ease-in-out infinite;
+  will-change: transform;
+}
+.fabric-zoom {
+  transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@media (hover: hover) {
+  .fabric:hover .fabric-zoom {
+    transform: scale(1.03);
+  }
+}
+.fabric a:focus-visible .fabric-zoom {
+  transform: scale(1.03);
+}
+
+/* Product hero scroll cue: a gold thread runs down its line, again and again */
+@keyframes scroll-thread {
+  0% { transform: translate3d(0, -100%, 0); }
+  100% { transform: translate3d(0, 200%, 0); }
+}
+.scroll-thread {
+  animation: scroll-thread 2.2s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+
 /* ---------- Statement ribbon: slow seamless drift ---------- */
 @keyframes ribbon-drift {
   from { transform: translate3d(0, 0, 0); }
@@ -243,8 +274,16 @@
   .ribbon-drift,
   .drape-light,
   .cloth-pan,
-  .kente-glow {
+  .kente-glow,
+  .fabric-breathe,
+  .scroll-thread {
     animation: none;
+  }
+  .fabric-zoom,
+  .fabric:hover .fabric-zoom,
+  .fabric a:focus-visible .fabric-zoom {
+    transition: none;
+    transform: none;
   }
 }
 

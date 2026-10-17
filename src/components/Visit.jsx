@@ -75,13 +75,13 @@ export default function Visit() {
         </Reveal>
 
         <motion.dl
-          className="mt-7 grid grid-cols-2 border-y border-charcoal/15 md:grid-cols-3"
+          className="mt-7 grid grid-cols-1 border-y border-charcoal/15 sm:grid-cols-2 lg:grid-cols-3"
           initial="hidden"
           whileInView="shown"
           viewport={{ once: true, amount: 0.4 }}
           variants={{ hidden: {}, shown: { transition: { staggerChildren: 0.12 } } }}
         >
-          <motion.div variants={cell} className="col-span-2 py-5 md:col-span-1 md:px-8 md:py-7 md:text-center">
+          <motion.div variants={cell} className="py-5 sm:col-span-2 lg:col-span-1 lg:px-8 lg:py-7 lg:text-center">
             <dt className={label}>Address</dt>
             <dd className={big}>
               Access Self Storage
@@ -91,7 +91,7 @@ export default function Visit() {
               <span className="text-crimson">Unit 5580</span>
             </dd>
           </motion.div>
-          <motion.div variants={cell} className="border-t border-charcoal/15 py-5 md:border-l md:border-t-0 md:px-8 md:py-7 md:text-center">
+          <motion.div variants={cell} className="border-t border-charcoal/15 py-5 lg:border-l lg:border-t-0 lg:px-8 lg:py-7 lg:text-center">
             <dt className={label}>Opening hours</dt>
             <dd className={big}>
               Monday to Friday
@@ -100,9 +100,9 @@ export default function Visit() {
             </dd>
             <dd className="mt-1 text-sm text-charcoal/55">Closed weekends</dd>
           </motion.div>
-          <motion.div variants={cell} className="border-l border-t border-charcoal/15 py-5 pl-4 md:border-t-0 md:px-8 md:py-7 md:text-center">
+          <motion.div variants={cell} className="border-t border-charcoal/15 py-5 sm:border-l sm:pl-6 lg:border-t-0 lg:px-8 lg:py-7 lg:text-center">
             <dt className={label}>Phone and WhatsApp</dt>
-            <dd className={`${big} max-sm:text-[0.92rem]`}>
+            <dd className={big}>
               <a href={`tel:${PHONE_TEL}`} className="whitespace-nowrap transition-colors hover:text-crimson">
                 {PHONE_DISPLAY}
               </a>
