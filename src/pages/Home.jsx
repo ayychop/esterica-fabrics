@@ -14,14 +14,14 @@ const C = { cream: '#FAF4E4', charcoal: '#121212', gold: '#E8B31A', indigo: '#1A
 
 export const HOME_TITLE = 'Esterica Fabrics | Authentic Kente Cloth by the Metre, Wembley'
 
-export default function Home({ heroRef, ready }) {
+export default function Home({ heroRef, ready, cloth = true }) {
   useEffect(() => {
     document.title = HOME_TITLE
   }, [])
 
   return (
     <>
-      <Hero ref={heroRef} ready={ready} />
+      <Hero ref={heroRef} ready={ready} cloth={cloth} />
       <WeaveDivider from={C.charcoal} to={C.charcoal} palette="bold" />
       <Statement />
       {/* Woven in Ghana runs straight into the swatch book: no seam, the colour block simply takes over */}

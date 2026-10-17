@@ -1,14 +1,19 @@
-import { useLayoutEffect, useRef, useState } from 'react'
-import gsap from 'gsap'
-import { KENTE_TILE } from './Kente'
-import { WORDMARK_LETTERS as WM } from './wordmarkLetters'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { motion } from 'framer-motion'
+import { WORDMARK } from './logoPaths'
 
 const KEY = 'esterica-intro-played'
 
-// The letters carry the cloth exactly as woven: hard, vivid blocks of gold, red, green, indigo and
-// black, with no gradients and no sheen. A solid gold edge keeps the black from reading as holes.
-const GOLD = '#E8B31A'
-const LETTER_TILE = KENTE_TILE.svg
+// easeInOutExpo: slow to leave, fast through the middle, slow to settle. Deliberate, never linear.
+const EXPO = [0.87, 0, 0.13, 1]
+const THREAD_COLOURS = ['#E8B31A', '#C41E1E', '#0F7A34']
+
+// The sequence, in seconds (2.5 in all):
+//   0.0 to 1.0  fine Kente threads drop from the top, like a curtain being drawn
+//   1.0 to 1.5  ESTERICA lifts into view through a mask
+//   1.5 to 2.0  it holds, and FABRICS · LONDON fades in beneath it
+//   2.0 to 2.5  the whole card wipes up and away to the homepage
+const T = { threadsEnd: 1.0, markStart: 0.95, markDur: 0.55, lineStart: 1.5, lineDur: 0.45, exitStart: 2.0, exitDur: 0.5 }
 
 export function introAlreadyPlayed() {
   try {
@@ -18,160 +23,137 @@ export function introAlreadyPlayed() {
   }
 }
 
-// "Esterica Fabrics", set large and filled with Kente. Each letter wipes in from top to bottom in
-// gold, left to right, and as its wipe completes the woven cloth blooms inside it. The cloth keeps
-// drifting through the letters while the wordmark holds, then the card lifts away. All vector.
-//   0.00 to 1.94s  letters wipe in, one every 120ms (each wipe 260ms), power2.inOut
-//   to ~2.24s      Kente has bloomed in the last letter
-//   2.24 to 2.79s  hold (550ms), the cloth drifting
-//   2.79 to 3.19s  the card fades out upward
-const STEP = 0.12
-const WIPE = 0.26
-const BLOOM = 0.3
-const HOLD = 0.55
-const FADE = 0.4
+const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
-// Wide screens: one line. Narrow screens: Esterica over Fabrics, so the letters stay large.
-function layout() {
-  const wide = window.innerWidth / window.innerHeight > 0.9
-  const gap = WM.space * 1.3
-  if (wide) {
-    const total = WM.esterica.width + gap + WM.fabrics.width
-    return { wide, words: [{ x: 0, y: 0 }, { x: WM.esterica.width + gap, y: 0 }], vb: [-12, -175, total + 24, 205] }
-  }
-  const w = Math.max(WM.esterica.width, WM.fabrics.width)
-  return {
-    wide,
-    words: [
-      { x: (w - WM.esterica.width) / 2, y: 0 },
-      { x: (w - WM.fabrics.width) / 2 + 20, y: 210 },
-    ],
-    vb: [-12, -175, w + 24, 415],
+// Whether the intro should play at all: once per browser session, and never for reduced motion.
+export function shouldPlayIntro() {
+  return !introAlreadyPlayed() && !prefersReducedMotion()
+}
+
+function markPlayed() {
+  try {
+    sessionStorage.setItem(KEY, '1')
+  } catch {
+    /* private mode: the intro may play again on the next visit */
   }
 }
 
-export default function IntroLoader({ onReveal, onDone }) {
-  const root = useRef(null)
-  const [gone, setGone] = useState(false)
-  const [lay] = useState(layout)
-  const letters = [
-    ...WM.esterica.letters.map((l) => ({ ...l, word: 0 })),
-    ...WM.fabrics.letters.map((l) => ({ ...l, word: 1 })),
-  ]
-  const scale = 1.45 // Kente tile size inside the letters: small enough to read as woven cloth
-  const tileW = KENTE_TILE.w * scale
-  const [vx, vy, vw, vh] = lay.vb
+// A seeded scatter, so the threads fall in the same lovely order on every visit.
+const jitter = (i, salt) => {
+  const x = Math.sin(i * 12.9898 + salt * 78.233) * 43758.5453
+  return x - Math.floor(x)
+}
 
-  useLayoutEffect(() => {
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    const reveal = () => {
-      try {
-        sessionStorage.setItem(KEY, '1')
-      } catch {
-        /* private mode, the intro may play again */
+function useThreads() {
+  return useMemo(() => {
+    const count = Math.min(34, Math.max(12, Math.round(window.innerWidth / 46)))
+    return Array.from({ length: count }, (_, i) => {
+      const fall = 0.62 + jitter(i, 1) * 0.12 // each thread's drop
+      return {
+        left: `${((i + 0.5 + (jitter(i, 2) - 0.5) * 0.5) / count) * 100}%`,
+        width: jitter(i, 3) > 0.55 ? 2.5 : 1.5,
+        colour: THREAD_COLOURS[i % THREAD_COLOURS.length],
+        duration: fall,
+        delay: jitter(i, 4) * (T.threadsEnd - fall), // every thread is down by 1.0s
       }
-      onReveal()
-    }
-    const finish = () => {
-      setGone(true)
-      onDone()
-    }
+    })
+  }, [])
+}
 
-    let tl
-    let drift
-    const ctx = gsap.context(() => {
-      const q = gsap.utils.selector(root)
-      const wipes = q('.wipe')
-      const blooms = q('.bloom')
-      wipes.forEach((r) => r.setAttribute('height', 0))
-      gsap.set(blooms, { opacity: 0 })
-
-      // the cloth drifts slowly through the letters the whole time
-      drift = gsap.to(q('.weave'), { x: -tileW, duration: 9, ease: 'none', repeat: -1 })
-
-      tl = gsap.timeline({ paused: true, onComplete: finish })
-      if (reduce) {
-        wipes.forEach((r) => r.setAttribute('height', r.dataset.h))
-        tl.set(blooms, { opacity: 1 }).to({}, { duration: 0.8 }).call(reveal).to(root.current, { opacity: 0, duration: 0.4 })
-        return
-      }
-
-      wipes.forEach((r, i) => {
-        tl.to(r, { attr: { height: +r.dataset.h }, duration: WIPE, ease: 'power2.inOut' }, i * STEP)
-        tl.to(blooms[i], { opacity: 1, duration: BLOOM, ease: 'power2.inOut' }, i * STEP + WIPE - 0.02)
-      })
-      const shown = (wipes.length - 1) * STEP + WIPE + BLOOM
-      tl.call(reveal, [], shown + HOLD).to(root.current, { opacity: 0, y: -48, duration: FADE, ease: 'power2.inOut' }, shown + HOLD)
-    }, root)
-
-    // Development only: tests can hold the intro (window.__introHold) and scrub its timeline.
-    if (import.meta.env.DEV) window.__introTimeline = tl
-    const held = import.meta.env.DEV && window.__introHold
-
-    let begun = false
-    let cancelled = false
-    const start = () => {
-      if (begun || cancelled || held) return
-      begun = true
-      tl.play()
-    }
-    document.fonts?.ready.then(start)
-    const t = setTimeout(start, 400)
+// Hold on the plain charcoal card until the homepage underneath has finished its first busy moment
+// (mounting, decoding, fonts), so the threads fall on a quiet main thread. Never waits more than 0.7s.
+function useQuietStart() {
+  const [go, setGo] = useState(false)
+  useEffect(() => {
+    let done = false
+    const start = () => !done && (done = true) && requestAnimationFrame(() => setGo(true))
+    const idle = window.requestIdleCallback ? requestIdleCallback(start, { timeout: 700 }) : setTimeout(start, 300)
+    const cap = setTimeout(start, 700)
     return () => {
-      cancelled = true
-      clearTimeout(t)
-      drift?.kill()
-      ctx.revert()
+      done = true
+      clearTimeout(cap)
+      window.cancelIdleCallback ? cancelIdleCallback(idle) : clearTimeout(idle)
     }
-  }, [onReveal, onDone, tileW])
+  }, [])
+  return go
+}
 
-  if (gone) return null
+export default function IntroLoader({ onReveal, onDone }) {
+  const threads = useThreads()
+  const go = useQuietStart()
+  const [leaving, setLeaving] = useState(false)
 
-  const place = (l) => `translate(${lay.words[l.word].x} ${lay.words[l.word].y})`
+  const left = useRef(false)
+  const leave = useCallback(() => {
+    if (left.current) return
+    left.current = true
+    setLeaving(true)
+    onReveal() // the hero starts its own entrance as the card lifts
+  }, [onReveal])
+
+  // Remember straight away, so a refresh part way through skips to the site.
+  useEffect(markPlayed, [])
+
+  // The sequence clock starts with the threads, so the hold is never cut short by a slow page start.
+  useEffect(() => {
+    if (!go) return
+    const t = setTimeout(leave, T.exitStart * 1000)
+    return () => clearTimeout(t)
+  }, [go, leave])
 
   return (
-    <div ref={root} role="status" aria-label="Loading Esterica Fabrics" className="fixed inset-0 z-[100] flex items-center justify-center bg-[#121212]">
-      <svg
-        aria-hidden="true"
-        viewBox={`${vx} ${vy} ${vw} ${vh}`}
-        className={lay.wide ? 'w-[80vw] max-h-[70vh]' : 'w-[84vw] max-h-[70vh]'}
-        shapeRendering="geometricPrecision"
-      >
-        <defs>
-          <pattern id="wm-kente" width={KENTE_TILE.w} height={KENTE_TILE.h} patternUnits="userSpaceOnUse" patternTransform={`scale(${scale})`}>
-            <g dangerouslySetInnerHTML={{ __html: LETTER_TILE }} />
-          </pattern>
-          {/* each letter's wipe: a rect that grows downward from the letter's top */}
-          {letters.map((l, i) => (
-            <clipPath key={i} id={`wm-wipe-${i}`} clipPathUnits="userSpaceOnUse">
-              <rect className="wipe" x={l.x0 - 8} y={l.y0 - 8} width={l.x1 - l.x0 + 16} height="0" data-h={l.y1 - l.y0 + 16} />
-            </clipPath>
-          ))}
-          {/* gold: letters as far as their wipes have reached */}
-          <mask id="wm-gold-mask" maskUnits="userSpaceOnUse" x={vx} y={vy} width={vw} height={vh}>
-            {letters.map((l, i) => (
-              <path key={i} d={l.d} transform={place(l)} fill="#fff" clipPath={`url(#wm-wipe-${i})`} />
-            ))}
-          </mask>
-          {/* Kente: each letter blooms once its wipe completes */}
-          <mask id="wm-kente-mask" maskUnits="userSpaceOnUse" x={vx} y={vy} width={vw} height={vh}>
-            {letters.map((l, i) => (
-              <path key={i} className="bloom" d={l.d} transform={place(l)} fill="#fff" />
-            ))}
-          </mask>
-        </defs>
+    <motion.div
+      role="status"
+      aria-label="Loading Esterica Fabrics"
+      className="fixed inset-0 z-[100] overflow-hidden bg-[#121212]"
+      initial={{ y: 0 }}
+      animate={{ y: leaving ? '-100%' : 0 }}
+      transition={{ duration: T.exitDur, ease: EXPO }}
+      onAnimationComplete={() => leaving && onDone()}
+    >
+      {/* The curtain of threads: GPU-only scaleY from the top edge */}
+      <div aria-hidden="true" className="absolute inset-0">
+        {threads.map((t, i) => (
+          <motion.span
+            key={i}
+            className="absolute top-0 h-full origin-top will-change-transform"
+            style={{ left: t.left, width: t.width, background: t.colour }}
+            initial={{ scaleY: 0 }}
+            animate={{ scaleY: go ? 1 : 0 }}
+            transition={{ duration: t.duration, delay: t.delay, ease: EXPO }}
+          />
+        ))}
+      </div>
 
-        <rect x={vx} y={vy} width={vw} height={vh} fill={GOLD} mask="url(#wm-gold-mask)" />
-        <g mask="url(#wm-kente-mask)">
-          <rect className="weave" x={vx - tileW} y={vy} width={vw + tileW * 3} height={vh} fill="url(#wm-kente)" />
-        </g>
-        {/* a solid gold edge keeps every letterform crisp against the dark ground */}
-        <g fill="none" stroke={GOLD} strokeWidth="2.4" mask="url(#wm-gold-mask)">
-          {letters.map((l, i) => (
-            <path key={i} d={l.d} transform={place(l)} />
-          ))}
-        </g>
-      </svg>
-    </div>
+      <div className="relative flex h-full flex-col items-center justify-center px-6">
+        {/* The wordmark lifts into view inside its own window, carrying a dark plate that parts the threads */}
+        <div className="overflow-hidden">
+          <motion.div
+            className="bg-[#121212] px-[4vw] py-[2.2vw] md:px-10 md:py-7"
+            initial={{ y: '101%' }}
+            animate={{ y: go ? 0 : '101%' }}
+            transition={{ duration: T.markDur, delay: T.markStart, ease: EXPO }}
+          >
+            <svg
+              viewBox={`0 ${-WORDMARK.cap - 4} ${WORDMARK.w} ${WORDMARK.cap + 8}`}
+              className="block h-auto w-[min(72vw,560px)]"
+              role="img"
+              aria-label="Esterica"
+            >
+              <path d={WORDMARK.d} fill="#E8B31A" />
+            </svg>
+          </motion.div>
+        </div>
+
+        <motion.p
+          className="mt-3 bg-[#121212] px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.5em] text-gold md:mt-4 md:text-[13px]"
+          initial={{ opacity: 0, y: 8 }}
+          animate={go ? { opacity: 1, y: 0 } : { opacity: 0, y: 8 }}
+          transition={{ duration: T.lineDur, delay: T.lineStart, ease: [0.22, 1, 0.36, 1] }}
+        >
+          Fabrics <span aria-hidden="true">·</span> London
+        </motion.p>
+      </div>
+    </motion.div>
   )
 }

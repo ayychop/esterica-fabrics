@@ -4,7 +4,7 @@ import { SmoothScrollProvider, usePastElement, useSmoothScroll } from './lib/scr
 import { ConsentProvider } from './lib/consent'
 import { CartProvider } from './lib/cart'
 import { RouterProvider, matchRoute, useRouter } from './lib/router'
-import IntroLoader, { introAlreadyPlayed } from './components/IntroLoader'
+import IntroLoader, { shouldPlayIntro } from './components/IntroLoader'
 import Header from './components/Header'
 import Footer from './components/Footer'
 import CartToast from './components/shop/CartToast'
@@ -67,10 +67,10 @@ function useIsPhone() {
   return phone
 }
 
-function Page({ route, heroRef, revealed }) {
+function Page({ route, heroRef, revealed, introOver }) {
   switch (route.name) {
     case 'home':
-      return <Home heroRef={heroRef} ready={revealed} />
+      return <Home heroRef={heroRef} ready={revealed} cloth={introOver} />
     case 'shop':
       return <ShopPage />
     case 'product': {
@@ -109,8 +109,9 @@ function Site() {
   const pastFold = usePastSection('fold', longPage)
   const showBackToTop = isHome ? (isPhone ? pastFaq : pastHero) : pastFold
 
-  // The intro plays once per visit, and only when the visit starts on the home page.
-  const [intro, setIntro] = useState(() => isHome && !introAlreadyPlayed())
+  // The intro plays once per browser session, only when the visit starts on the home page,
+  // and never for visitors who ask for reduced motion.
+  const [intro, setIntro] = useState(() => isHome && shouldPlayIntro())
   const [revealed, setRevealed] = useState(() => !intro)
 
   useEffect(() => {
@@ -150,7 +151,7 @@ function Site() {
       <Header solid={scrolled || !(isHome || (route.name === 'product' && productBySlug(route.slug)))} home={isHome} activeId={isHome ? active : route.name === 'shop' || route.name === 'product' ? 'shop' : null} />
 
       <main id="main">
-        <Page route={route} heroRef={heroRef} revealed={revealed} />
+        <Page route={route} heroRef={heroRef} revealed={revealed} introOver={!intro} />
       </main>
       <Footer onLegal={setLegal} />
 

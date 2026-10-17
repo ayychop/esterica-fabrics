@@ -19,7 +19,8 @@ class NoClothOnError extends Component {
   }
 }
 
-const Hero = forwardRef(function Hero({ ready }, ref) {
+// `cloth` holds back the 3D cloth until the intro has finished, so compiling it never stalls the intro's animation.
+const Hero = forwardRef(function Hero({ ready, cloth = true }, ref) {
   const sectionRef = useRef(null)
   useImperativeHandle(ref, () => sectionRef.current)
 
@@ -54,7 +55,7 @@ const Hero = forwardRef(function Hero({ ready }, ref) {
       <div className={`absolute inset-0 transition-opacity duration-700 ${ready3d ? 'opacity-100' : 'opacity-0'}`}>
         <NoClothOnError>
           <Suspense fallback={null}>
-            <FabricCanvas eventSource={sectionRef} active={visible} compact={compact} still={still} onReady={() => setReady3d(true)} />
+            {cloth && <FabricCanvas eventSource={sectionRef} active={visible} compact={compact} still={still} onReady={() => setReady3d(true)} />}
           </Suspense>
         </NoClothOnError>
       </div>

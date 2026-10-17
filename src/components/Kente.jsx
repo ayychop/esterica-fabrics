@@ -42,7 +42,6 @@ ${checker(36, 38, 7, 1, 4, C.crimson, C.ink)}
 <rect y="45" width="128" height="3" fill="${C.ink}"/>
 `
 
-export const KENTE_TILE = { w: 128, h: 48, svg: TILE }
 
 export const kenteDataUri = `url("data:image/svg+xml,${encodeURIComponent(
   `<svg xmlns="http://www.w3.org/2000/svg" width="128" height="48" viewBox="0 0 128 48">${TILE}</svg>`,
