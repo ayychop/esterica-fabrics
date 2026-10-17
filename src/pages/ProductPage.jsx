@@ -15,9 +15,12 @@ import { img, whatsappLink } from '../config'
 // The homepage hero's curve, shared with the shop.
 const EASE = [0.22, 1, 0.36, 1]
 
+// The editorial cover: the cloth edge to edge, a deep scrim rising from the foot, the name set huge.
+// On larger screens the close-up views swap the cover itself.
 function ProductHero({ product, onScrollCue }) {
   const ref = useRef(null)
   const still = useReducedMotion()
+  const [view, setView] = useState(0)
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] })
   const y = useTransform(scrollYProgress, [0, 1], ['0%', still ? '0%' : '18%'])
 
@@ -30,24 +33,32 @@ function ProductHero({ product, onScrollCue }) {
   return (
     <section ref={ref} className="relative isolate h-[100svh] min-h-[560px] overflow-hidden bg-ink text-cream" aria-labelledby="product-title">
       <motion.div aria-hidden="true" className="absolute inset-0 -z-10" style={{ y }}>
-        <motion.img
-          src={img(product.imageId, 1600)}
-          srcSet={[800, 1200, 1600, 2400].map((w) => `${img(product.imageId, w)} ${w}w`).join(', ')}
-          sizes="100vw"
-          alt=""
-          fetchpriority="high"
-          decoding="async"
-          className="h-full w-full object-cover"
-          initial={{ scale: 1.08 }}
-          animate={{ scale: 1 }}
-          transition={{ duration: 2.4, ease: EASE }}
-        />
+        <AnimatePresence initial={false}>
+          <motion.img
+            key={view}
+            // The full cloth keeps its natural proportions; the close-ups are cropped to the cover's shape
+            src={VIEWS[view].fp ? viewSrc(product.imageId, VIEWS[view], 1600, 1000) : img(product.imageId, 1600)}
+            srcSet={[800, 1200, 1600, 2400].map((w) => `${VIEWS[view].fp ? viewSrc(product.imageId, VIEWS[view], w, Math.round(w * 0.625)) : img(product.imageId, w)} ${w}w`).join(', ')}
+            sizes="100vw"
+            alt=""
+            fetchpriority={view === 0 ? 'high' : undefined}
+            decoding="async"
+            className="absolute inset-0 h-full w-full object-cover"
+            initial={{ opacity: 0, scale: view === 0 ? 1.08 : 1.04 }}
+            animate={{ opacity: 1, scale: 1, transition: { duration: view === 0 ? 2.4 : 1.2, ease: EASE } }}
+            exit={{ opacity: 0, transition: { duration: 0.6 } }}
+          />
+        </AnimatePresence>
       </motion.div>
-      {/* One flat veil, no fade, to lift the cream type off the cloth */}
-      <div aria-hidden="true" className="absolute inset-0 -z-10 bg-ink/50" />
+      {/* A scrim rising from the foot for the name, and a light one at the top for the header */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 -z-10"
+        style={{ background: 'linear-gradient(to top, rgba(10,10,10,0.88) 0%, rgba(10,10,10,0.55) 28%, rgba(10,10,10,0.12) 58%, rgba(10,10,10,0.6) 100%)' }}
+      />
 
-      <div className="mx-auto flex h-full max-w-[1600px] flex-col justify-end px-5 pb-48 sm:px-8 md:pb-36 lg:px-12">
-        <motion.nav {...show(0)} aria-label="Breadcrumb" className="mb-6 text-[12px] font-semibold uppercase tracking-[0.2em] text-cream/75">
+      <div className="flex h-full flex-col justify-end px-5 pb-56 sm:px-8 md:pb-40 lg:px-12">
+        <motion.nav {...show(0)} aria-label="Breadcrumb" className="mb-6 text-[12px] font-semibold uppercase tracking-[0.2em] text-cream/80">
           <ol className="flex flex-wrap items-center gap-2">
             <li><Link to="/shop" className="transition-colors hover:text-gold">The Collection</Link></li>
             <li aria-hidden="true" className="text-gold">/</li>
@@ -57,97 +68,119 @@ function ProductHero({ product, onScrollCue }) {
         <motion.h1
           id="product-title"
           {...show(0.1)}
-          className="heading-depth-dark font-serif text-[clamp(3.4rem,10vw,9rem)] font-semibold leading-[0.9] tracking-[-0.02em] [text-wrap:balance]"
+          className="font-serif text-[clamp(4rem,13vw,12.5rem)] font-semibold leading-[0.86] tracking-[-0.03em] [text-wrap:balance]"
         >
           {product.name}
         </motion.h1>
-        <motion.p {...show(0.26)} className="mt-5 text-[12px] font-semibold uppercase tracking-[0.32em] text-gold md:mt-7 md:text-[13px]">
-          Handpicked Kente from trusted weavers
+        <motion.p {...show(0.26)} className="mt-6 text-[12px] font-semibold uppercase tracking-[0.32em] text-gold md:mt-8 md:text-[13px]">
+          {product.weave} · Handpicked Kente from trusted weavers
         </motion.p>
       </div>
 
-      {/* Scroll cue: a single thread running down, then a tap takes you to the cloth */}
+      {/* Close-up views of the cloth, from tablet up: top right, clear of the name and the WhatsApp button */}
+      <motion.div
+        {...show(0.4)}
+        role="group"
+        aria-label="Views of the cloth"
+        className="absolute right-8 top-[108px] hidden flex-col items-end gap-1 rounded-sm bg-ink/55 px-4 py-3 backdrop-blur-md md:flex lg:right-12"
+      >
+        {VIEWS.map((v, i) => (
+          <button
+            key={v.label}
+            type="button"
+            aria-pressed={i === view}
+            onClick={() => setView(i)}
+            className={`min-h-[32px] text-[11px] font-semibold uppercase tracking-[0.24em] transition-colors ${i === view ? 'text-gold' : 'text-cream/70 hover:text-cream'}`}
+          >
+            {v.label}
+          </button>
+        ))}
+      </motion.div>
+
+      {/* Scroll cue: large, bright, the arrow bobbing slowly so the eye finds it */}
       <motion.button
         type="button"
         onClick={onScrollCue}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.2, duration: 1 }}
-        className="absolute bottom-6 left-1/2 flex -translate-x-1/2 flex-col items-center gap-3 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.32em] text-cream/80 transition-colors hover:text-gold max-md:bottom-24"
+        className="absolute bottom-6 left-1/2 flex -translate-x-1/2 flex-col items-center gap-2 px-4 py-2 text-[13px] font-bold uppercase tracking-[0.34em] text-cream transition-colors hover:text-gold max-md:bottom-24"
+        aria-label="Scroll to the details"
       >
-        Scroll
-        <span aria-hidden="true" className="relative block h-12 w-px overflow-hidden bg-cream/25">
-          <span className="scroll-thread absolute inset-x-0 top-0 h-1/2 bg-gold" />
-        </span>
+        <span aria-hidden="true">Scroll</span>
+        <svg aria-hidden="true" viewBox="0 0 24 24" className="scroll-bounce h-9 w-9 text-gold" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M12 4v15M5 12l7 7 7-7" />
+        </svg>
       </motion.button>
     </section>
   )
 }
 
-// The cloth laid down by hand: a touch off square, breathing like the shop swatches, rippling once on hover.
-function FabricViewer({ product }) {
-  const [index, setIndex] = useState(0)
-  const view = VIEWS[index]
-  return (
-    <section id="cloth" className="overflow-hidden bg-cream pb-16 pt-20 md:pb-28 md:pt-32" aria-label={`${product.name}, close look`}>
-      <div className="mx-auto max-w-[1180px] px-5 sm:px-8">
-        <Reveal y={48}>
-          <div className="swatch -rotate-[1.6deg]">
-            <div className="swatch-cloth shadow-[0_40px_70px_-30px_rgba(10,10,10,0.55)]">
-              <div className="photo aspect-[4/5] w-full bg-sand md:aspect-[5/4]">
-                <AnimatePresence initial={false}>
-                  <motion.img
-                    key={index}
-                    src={viewSrc(product.imageId, view, 1600, 1280)}
-                    srcSet={[800, 1200, 1600, 2200].map((w) => `${viewSrc(product.imageId, view, w, Math.round(w * 0.8))} ${w}w`).join(', ')}
-                    sizes="(min-width: 1180px) 1120px, 100vw"
-                    alt={`${product.name}, ${view.label.toLowerCase()}`}
-                    decoding="async"
-                    className="fabric-breathe absolute inset-0 h-full w-full object-cover"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.5 }}
-                  />
-                </AnimatePresence>
-                <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-[2] overflow-hidden">
-                  <div className="swatch-sheen absolute inset-y-0 w-1/3 bg-gradient-to-r from-transparent via-cream/25 to-transparent" />
-                </div>
-              </div>
-            </div>
-          </div>
-        </Reveal>
+// The order message for this cloth and length, shared by the panel and the phone bar.
+function orderText(product, metres) {
+  const price = priceLine(product.perMetre, metres)
+  return `Hi Esterica Fabrics, I'd like to order ${metresLabel(metres)} of ${product.name} (${product.tierLabel}, ${perMetreLabel(product.perMetre)} per metre). The website shows ${money(price.total)}${
+    price.discount ? ` after the ${percent(price.rate)} bulk discount` : ''
+  }. Is it available?`
+}
+const tradeText = (product, metres) => TRADE_MESSAGE.replace('Fabric(s):', `Fabric(s): ${product.name}`).replace('Metres:', `Metres: ${metres}`)
 
-        <div className="mt-10 flex flex-wrap justify-center gap-x-6 gap-y-2 md:mt-14" role="group" aria-label="Views of the cloth">
-          {VIEWS.map((v, i) => (
-            <button
-              key={v.label}
-              type="button"
-              aria-pressed={i === index}
-              onClick={() => setIndex(i)}
-              className={`min-h-[44px] border-b-2 text-[11px] font-semibold uppercase tracking-[0.24em] transition-colors ${
-                i === index ? 'border-crimson text-charcoal' : 'border-transparent text-charcoal/60 hover:text-charcoal'
-              }`}
-            >
-              {v.label}
-            </button>
-          ))}
-        </div>
-      </div>
-    </section>
+// Phones only: the buying bar that takes the place of the site's usual bottom bar on a product page.
+// It hides while the panel's own buttons are on screen, so the two never show at once.
+function BuyBar({ product, metres, hidden }) {
+  const { add } = useCart()
+  const isTrade = metres >= TRADE_MIN
+  const price = priceLine(product.perMetre, metres)
+  return (
+    <AnimatePresence>
+      {!hidden && (
+        <motion.div
+          className="fixed inset-x-0 bottom-0 z-40 border-t border-gold/30 bg-charcoal/95 text-cream backdrop-blur-md md:hidden"
+          style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+          initial={{ y: '100%' }}
+          animate={{ y: 0 }}
+          exit={{ y: '100%' }}
+          transition={{ type: 'spring', stiffness: 320, damping: 34 }}
+        >
+          <div className="flex items-center gap-3 px-4 py-3">
+            <p className="min-w-0 flex-1 leading-tight">
+              <span className="block truncate font-serif text-[1.05rem] font-semibold">{product.name}</span>
+              <span className="text-[12px] text-cream/75">
+                {metresLabel(metres)} · <span className="font-semibold text-gold">{isTrade ? 'trade price' : money(price.total)}</span>
+              </span>
+            </p>
+            {isTrade ? (
+              <a href={whatsappLink(tradeText(product, metres))} target="_blank" rel="noopener noreferrer" className="btn-gold !min-h-[48px] !px-4 !text-[12px]">
+                <WhatsAppIcon className="h-[18px] w-[18px]" /> Trade price
+              </a>
+            ) : (
+              <>
+                <a
+                  href={whatsappLink(orderText(product, metres))}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`Order ${metresLabel(metres)} of ${product.name} via WhatsApp`}
+                  className="grid h-12 w-12 shrink-0 place-items-center rounded-[3px] border border-cream/40 text-cream"
+                >
+                  <WhatsAppIcon className="h-5 w-5" />
+                </a>
+                <button type="button" onClick={() => add(product.slug, metres)} className="btn-gold !min-h-[48px] !px-4 !text-[12px]">
+                  <BagIcon className="h-[18px] w-[18px]" /> Add to Cart
+                </button>
+              </>
+            )}
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   )
 }
 
-function Purchase({ product }) {
+function Purchase({ product, metres, setMetres, actionsRef }) {
   const { add } = useCart()
-  const [metres, setMetres] = useState(2)
   const isTrade = metres >= TRADE_MIN
   const price = priceLine(product.perMetre, metres)
   const next = nextBand(metres)
-
-  const waMessage = `Hi Esterica Fabrics, I'd like to order ${metresLabel(metres)} of ${product.name} (${product.tierLabel}, ${perMetreLabel(product.perMetre)} per metre). The website shows ${money(price.total)}${
-    price.discount ? ` after the ${percent(price.rate)} bulk discount` : ''
-  }. Is it available?`
 
   const enter = (delay) => ({
     initial: { opacity: 0, y: 24 },
@@ -203,9 +236,9 @@ function Purchase({ product }) {
         )}
       </motion.div>
 
-      <motion.div {...enter(0.32)} className="mt-7 grid gap-3">
+      <motion.div ref={actionsRef} {...enter(0.32)} className="mt-7 grid gap-3">
         {isTrade ? (
-          <a href={whatsappLink(TRADE_MESSAGE.replace('Fabric(s):', `Fabric(s): ${product.name}`).replace('Metres:', `Metres: ${metres}`))} target="_blank" rel="noopener noreferrer" className="btn-gold min-h-[60px]">
+          <a href={whatsappLink(tradeText(product, metres))} target="_blank" rel="noopener noreferrer" className="btn-gold min-h-[60px]">
             <WhatsAppIcon /> Enquire for trade pricing
           </a>
         ) : (
@@ -213,7 +246,7 @@ function Purchase({ product }) {
             <button type="button" onClick={() => add(product.slug, metres)} className="btn-gold min-h-[60px] text-[15px]">
               <BagIcon /> Add to Cart
             </button>
-            <a href={whatsappLink(waMessage)} target="_blank" rel="noopener noreferrer" className="btn-outline-light min-h-[56px]">
+            <a href={whatsappLink(orderText(product, metres))} target="_blank" rel="noopener noreferrer" className="btn-outline-light min-h-[56px]">
               <WhatsAppIcon /> Order via WhatsApp
             </a>
           </>
@@ -283,6 +316,18 @@ function CompleteTheLook({ product }) {
 
 export default function ProductPage({ product }) {
   const { scrollTo } = useSmoothScroll()
+  const [metres, setMetres] = useState(2)
+  const actionsRef = useRef(null)
+  const [actionsOnScreen, setActionsOnScreen] = useState(false)
+
+  // The phone buying bar steps aside whenever the panel's own Add to Cart is in view.
+  useEffect(() => {
+    const el = actionsRef.current
+    if (!el) return
+    const io = new IntersectionObserver(([e]) => setActionsOnScreen(e.isIntersecting))
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
 
   useEffect(() => {
     document.title = `${product.name}, ${product.tierLabel} by the Metre | Esterica Fabrics`
@@ -300,10 +345,10 @@ export default function ProductPage({ product }) {
 
   return (
     <>
-      <ProductHero product={product} onScrollCue={() => scrollTo(document.getElementById('cloth'))} />
-      <FabricViewer product={product} />
+      <ProductHero product={product} onScrollCue={() => scrollTo(document.getElementById('details'))} />
 
-      <section className="bg-cream pb-20 md:pb-32" aria-label="Details and price">
+      {/* The details follow the cover straight away: on phones the price and buttons come first */}
+      <section id="details" className="bg-cream pb-20 pt-10 md:pb-32 md:pt-20" aria-label="Details and price">
         <div className="mx-auto grid max-w-[1400px] gap-14 px-5 sm:px-8 lg:grid-cols-12 lg:gap-20 lg:px-12">
           <div className="lg:col-span-6 xl:col-span-7">
             <Reveal>
@@ -322,7 +367,7 @@ export default function ProductPage({ product }) {
 
           {/* Stacked on phones and tablets, the price comes first; side by side, it sits on the right */}
           <div className="max-lg:order-first lg:col-span-6 xl:col-span-5">
-            <Purchase key={product.slug} product={product} />
+            <Purchase product={product} metres={metres} setMetres={setMetres} actionsRef={actionsRef} />
           </div>
         </div>
       </section>
@@ -330,6 +375,7 @@ export default function ProductPage({ product }) {
       <WeaveDivider from="#FAF4E4" to="#FAF4E4" palette="bold" />
       <CompleteTheLook product={product} />
       <WeaveDivider from="#FAF4E4" to="#0A0A0A" palette="bold" />
+      <BuyBar product={product} metres={metres} hidden={actionsOnScreen} />
     </>
   )
 }

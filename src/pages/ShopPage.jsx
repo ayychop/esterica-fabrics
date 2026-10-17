@@ -69,7 +69,7 @@ export default function ShopPage() {
 
         {/* Browse all: every cloth at once, edge to edge, words on the cloth */}
         <section ref={browseRef} id="browse" aria-labelledby="browse-title" className="scroll-mt-[76px] bg-ink text-cream">
-          <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-4 px-4 pb-6 pt-16 md:px-6 md:pt-24">
+          <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-4 px-4 pb-8 pt-16 md:px-8 md:pb-10 md:pt-24">
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.32em] text-gold">Browse all</p>
               <h2 id="browse-title" className="mt-3 font-serif text-[clamp(2.6rem,6vw,5.5rem)] font-semibold leading-[0.9] tracking-[-0.02em]">Every cloth</h2>
@@ -113,7 +113,7 @@ export default function ShopPage() {
           </div>
 
           {results.length ? (
-            <motion.ul layout className="grid grid-cols-1 gap-[2px] md:grid-cols-2 xl:grid-cols-3">
+            <motion.ul layout className="grid grid-cols-1 gap-6 px-4 pb-20 md:grid-cols-2 md:gap-8 md:px-8 md:pb-28 xl:grid-cols-3">
               <AnimatePresence mode="popLayout" initial={false}>
                 {results.map((p, i) => (
                   <motion.li key={p.slug} layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5, ease: EASE }}>

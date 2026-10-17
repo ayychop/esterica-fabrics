@@ -156,7 +156,8 @@ function Site() {
 
       <CartToast />
       <WhatsAppOrb />
-      <MobileBar showTop={showBackToTop} />
+      {/* On a product page the phone bottom bar gives way to that page's own buying bar */}
+      {!(route.name === 'product' && productBySlug(route.slug)) && <MobileBar showTop={showBackToTop} />}
       <BackToTop visible={showBackToTop} />
       <CookieBanner />
       <LegalModal which={legal} onClose={closeLegal} />

@@ -196,13 +196,13 @@
   transform: scale(1.03);
 }
 
-/* Product hero scroll cue: a gold thread runs down its line, again and again */
-@keyframes scroll-thread {
-  0% { transform: translate3d(0, -100%, 0); }
-  100% { transform: translate3d(0, 200%, 0); }
+/* Product hero scroll cue: the arrow bobs slowly down and back, to draw the eye */
+@keyframes scroll-bounce {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(0, 9px, 0); }
 }
-.scroll-thread {
-  animation: scroll-thread 2.2s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+.scroll-bounce {
+  animation: scroll-bounce 1.8s ease-in-out infinite;
 }
 
 /* ---------- Shop campaign tiles ---------- */
@@ -316,7 +316,7 @@
   .cloth-pan,
   .kente-glow,
   .fabric-breathe,
-  .scroll-thread {
+  .scroll-bounce {
     animation: none;
   }
   .fabric-zoom,
