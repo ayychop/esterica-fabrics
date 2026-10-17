@@ -1,15 +1,14 @@
 import { useEffect } from 'react'
 import Hero from '../components/hero/Hero'
 import WeaveDivider from '../components/WeaveDivider'
-import Collection from '../components/Collection'
 import Statement from '../components/Statement'
 import Story from '../components/Story'
-import HowToOrder from '../components/HowToOrder'
 import Visit from '../components/Visit'
 import Delivery from '../components/Delivery'
 import Trade from '../components/Trade'
 import FAQ from '../components/FAQ'
 import Contact from '../components/Contact'
+import HomeSwatchBook from '../components/shop/HomeSwatchBook'
 
 const C = { cream: '#FAF4E4', charcoal: '#121212', gold: '#E8B31A', indigo: '#1A4DA0', crimson: '#C41E1E', burgundy: '#6B1E2E', forest: '#0F7A34' }
 
@@ -23,13 +22,11 @@ export default function Home({ heroRef, ready }) {
   return (
     <>
       <Hero ref={heroRef} ready={ready} />
-      <WeaveDivider from={C.charcoal} to={C.cream} />
-      <Collection />
-      <WeaveDivider from={C.cream} to={C.charcoal} />
+      <WeaveDivider from={C.charcoal} to={C.charcoal} palette="bold" />
       <Statement />
-      <WeaveDivider from={C.charcoal} to={C.gold} palette="bold" />
-      <HowToOrder />
-      <WeaveDivider from={C.gold} to={C.cream} palette="bold" />
+      {/* Woven in Ghana runs straight into the swatch book: no seam, the colour block simply takes over */}
+      <HomeSwatchBook />
+      <WeaveDivider from="#0A0A0A" to={C.cream} palette="bold" />
       <Visit />
       <WeaveDivider from={C.cream} to={C.indigo} palette="jewel" />
       <Story />

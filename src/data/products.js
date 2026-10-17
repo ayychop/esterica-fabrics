@@ -25,9 +25,21 @@ export const COLOUR_HEX = { Gold: '#E8B31A', Red: '#C41E1E', Green: '#0F7A34', I
 
 export const PATTERNS = ['Warp stripes', 'Geometric blocks', 'Woven checks', 'Ewe motifs', 'Printed']
 
+// The colour block the swatch book shifts to for each cloth: one solid Kente colour, chosen from the
+// cloth's own colours, with text and buttons that stay readable on it. The price takes the accent only
+// where the accent clears 3:1 against the block (gold on crimson or green does not, so those keep cream).
+export const TONES = {
+  gold: { bg: '#E8B31A', fg: '#0A0A0A', accent: '#0A0A0A', button: 'bg-ink text-gold hover:bg-charcoal', outline: 'border-ink/60 text-ink hover:bg-ink hover:text-gold' },
+  crimson: { bg: '#C41E1E', fg: '#FAF4E4', accent: '#FAF4E4', button: 'bg-gold text-ink hover:bg-gold-light', outline: 'border-cream/60 text-cream hover:bg-cream hover:text-ink' },
+  forest: { bg: '#0F7A34', fg: '#FAF4E4', accent: '#FAF4E4', button: 'bg-gold text-ink hover:bg-gold-light', outline: 'border-cream/60 text-cream hover:bg-cream hover:text-ink' },
+  indigo: { bg: '#1A4DA0', fg: '#FAF4E4', accent: '#E8B31A', button: 'bg-gold text-ink hover:bg-gold-light', outline: 'border-cream/60 text-cream hover:bg-cream hover:text-ink' },
+  charcoal: { bg: '#121212', fg: '#FAF4E4', accent: '#E8B31A', button: 'bg-gold text-ink hover:bg-gold-light', outline: 'border-cream/60 text-cream hover:bg-cream hover:text-ink' },
+}
+
 export const PRODUCTS = [
   {
     slug: 'royal-gold',
+    tone: 'gold',
     name: 'Royal Gold',
     imageId: '1660695828374-4ff51ac9df5d',
     tier: 'premium',
@@ -41,6 +53,7 @@ export const PRODUCTS = [
   },
   {
     slug: 'adinkra-wine',
+    tone: 'crimson',
     name: 'Adinkra Wine',
     imageId: '1578509566163-068acd11b8e7',
     tier: 'budget',
@@ -54,6 +67,7 @@ export const PRODUCTS = [
   },
   {
     slug: 'forest-pride',
+    tone: 'forest',
     name: 'Forest Pride',
     imageId: '1655682614757-a9a33fa45c93',
     tier: 'standard',
@@ -67,6 +81,7 @@ export const PRODUCTS = [
   },
   {
     slug: 'indigo-crown',
+    tone: 'indigo',
     name: 'Indigo Crown',
     imageId: '1734868032501-448d1457dc38',
     tier: 'designer',
@@ -80,6 +95,7 @@ export const PRODUCTS = [
   },
   {
     slug: 'ashanti-sunrise',
+    tone: 'gold',
     name: 'Ashanti Sunrise',
     imageId: '1660695828403-b42e117e0b4f',
     tier: 'standard',
@@ -93,6 +109,7 @@ export const PRODUCTS = [
   },
   {
     slug: 'ewe-heritage',
+    tone: 'indigo',
     name: 'Ewe Heritage',
     imageId: '1444362408440-274ecb6fc730',
     tier: 'premium',
@@ -106,6 +123,7 @@ export const PRODUCTS = [
   },
   {
     slug: 'bonwire-classic',
+    tone: 'charcoal',
     name: 'Bonwire Classic',
     imageId: '1552710307-537199cd41c0',
     tier: 'designer',
@@ -119,6 +137,7 @@ export const PRODUCTS = [
   },
   {
     slug: 'akwaaba-bloom',
+    tone: 'forest',
     name: 'Akwaaba Bloom',
     imageId: '1784123476742-de48239d2fb0',
     tier: 'budget',

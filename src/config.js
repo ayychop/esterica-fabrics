@@ -38,7 +38,6 @@ export const FABRICS = [
 export const NAV_LINKS = [
   { id: 'shop', label: 'Shop', to: '/shop' },
   { id: 'collection', label: 'Collection' },
-  { id: 'order', label: 'How to Order' },
   { id: 'visit', label: 'Visit Us' },
   { id: 'story', label: 'Our Story' },
   { id: 'delivery', label: 'Delivery' },

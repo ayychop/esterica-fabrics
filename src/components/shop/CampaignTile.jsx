@@ -10,7 +10,7 @@ const WIDTHS = [480, 720, 960, 1280, 1600]
 // A campaign tile for the shop: the cloth fills the frame and the words sit on it, bottom left, over a
 // dark scrim that deepens on hover. "Shop this cloth" waits for a hover on desktop and is always shown on touch.
 // `big` tiles are the 60% frames of the editorial grid; the rest are the 40% frames.
-export default function CampaignTile({ product, big = false, index = 0, eager = false }) {
+export default function CampaignTile({ product, big = false, index = 0, eager = false, sizes }) {
   const { add } = useCart()
   const [added, setAdded] = useState(false)
 
@@ -30,7 +30,7 @@ export default function CampaignTile({ product, big = false, index = 0, eager = 
             <img
               src={img(product.imageId, 1280, Math.round(1280 * ratio))}
               srcSet={WIDTHS.map((w) => `${img(product.imageId, w, Math.round(w * ratio))} ${w}w`).join(', ')}
-              sizes={big ? '(min-width: 768px) 58vw, 100vw' : '(min-width: 768px) 38vw, 100vw'}
+              sizes={sizes ?? (big ? '(min-width: 768px) 58vw, 100vw' : '(min-width: 768px) 38vw, 100vw')}
               alt=""
               loading={eager ? 'eager' : 'lazy'}
               decoding="async"
