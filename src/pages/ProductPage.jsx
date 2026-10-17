@@ -8,7 +8,7 @@ import { TRADE_MESSAGE } from '../components/Trade'
 import { Link } from '../lib/router'
 import { useCart } from '../lib/cart'
 import { useSmoothScroll } from '../lib/scroll'
-import { COLOURS, OCCASIONS, PATTERNS, VIEWS, relatedTo, viewSrc } from '../data/products'
+import { VIEWS, relatedTo, viewSrc } from '../data/products'
 import { SHIPPING, TRADE_MIN, metresLabel, money, nextBand, percent, perMetreLabel, priceLine } from '../lib/pricing'
 import { img, whatsappLink } from '../config'
 
@@ -289,10 +289,11 @@ export default function ProductPage({ product }) {
   }, [product])
 
   const details = [
+    ['Weave', product.weave],
     ['Origin', product.origin],
-    ['Pattern', PATTERNS[product.pattern]],
-    ['Colours', product.colours.map((c) => COLOURS[c].label).join(', ')],
-    ['Best for', product.occasions.map((o) => OCCASIONS[o]).join(', ')],
+    ['Pattern', product.patterns.join(', ')],
+    ['Colours', product.colours.join(', ')],
+    ['Best for', product.occasions.join(', ')],
     ['Cut', 'To your length, in half metres'],
     ['Care', 'Dry clean, or hand wash cold. Iron on the reverse.'],
   ]

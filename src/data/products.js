@@ -2,30 +2,28 @@ import { img } from '../config'
 import { TIERS } from '../lib/pricing'
 
 // Sample stock for the demo shop. Swap names, copy and photography for the real bolts before launch.
-export const OCCASIONS = {
-  wedding: 'Weddings & engagements',
-  graduation: 'Graduation',
-  festival: 'Festivals & durbars',
-  church: 'Church & Sunday best',
-  naming: 'Naming ceremonies',
-  everyday: 'Everyday wear',
-}
+//
+// Every tag below is the exact label shown in the shop filters, so a product's tags and the filter UI
+// can never drift apart. Combinations follow Ghanaian custom: red with black is a mourning pairing
+// (red is widely read as sorrow and loss, black as maturity and the ancestors), so no red-and-black
+// cloth is tagged for weddings, engagements or naming ceremonies. Gold reads as royalty and wealth,
+// green as growth and harvest, blue as peace and love.
 
-export const COLOURS = {
-  gold: { label: 'Gold', hex: '#E8B31A' },
-  red: { label: 'Red', hex: '#C41E1E' },
-  green: { label: 'Green', hex: '#0F7A34' },
-  indigo: { label: 'Indigo', hex: '#1A4DA0' },
-  black: { label: 'Black', hex: '#0A0A0A' },
-}
+export const OCCASIONS = [
+  'Weddings & engagements',
+  'Graduations',
+  'Festivals & durbars',
+  'Church & Sunday best',
+  'Naming ceremonies',
+  'Everyday wear',
+]
 
-export const PATTERNS = {
-  stripes: 'Warp stripes',
-  geometric: 'Geometric blocks',
-  checks: 'Woven checks',
-  motifs: 'Ewe motifs',
-  print: 'Printed',
-}
+export const COLOURS = ['Gold', 'Red', 'Green', 'Indigo', 'Black']
+
+// Swatch colours for the filter chips, in the site's Kente palette.
+export const COLOUR_HEX = { Gold: '#E8B31A', Red: '#C41E1E', Green: '#0F7A34', Indigo: '#1A4DA0', Black: '#0A0A0A' }
+
+export const PATTERNS = ['Warp stripes', 'Geometric blocks', 'Woven checks', 'Ewe motifs', 'Printed']
 
 export const PRODUCTS = [
   {
@@ -33,100 +31,114 @@ export const PRODUCTS = [
     name: 'Royal Gold',
     imageId: '1660695828374-4ff51ac9df5d',
     tier: 'premium',
+    weave: 'Sika Futuro',
     origin: 'Hand-woven in Bonwire, Ashanti Region, Ghana',
-    occasions: ['wedding', 'festival'],
-    colours: ['gold', 'black'],
-    pattern: 'geometric',
+    occasions: ['Weddings & engagements', 'Festivals & durbars'],
+    colours: ['Gold', 'Green'],
+    patterns: ['Geometric blocks', 'Warp stripes'],
     added: '2026-09-28',
-    blurb: 'Gold weft on a black ground, the cloth of engagements and durbars. Heavy, bright and made to be seen across a room.',
+    blurb: 'A Sika Futuro weave, "gold dust", named for its field of gold. Worn to say the wearer has arrived: bright, heavy and made for the engagement and the durbar.',
   },
   {
     slug: 'adinkra-wine',
     name: 'Adinkra Wine',
     imageId: '1578509566163-068acd11b8e7',
     tier: 'budget',
+    weave: 'Adinkra print',
     origin: 'Printed in Ghana on cotton',
-    occasions: ['everyday', 'church'],
-    colours: ['red', 'black'],
-    pattern: 'print',
+    occasions: ['Everyday wear', 'Church & Sunday best'],
+    colours: ['Red', 'Black'],
+    patterns: ['Printed'],
     added: '2026-07-12',
-    blurb: 'Adinkra symbols printed on a deep red cotton. Easy to sew and easy to wear, a good first cloth for a new tailor.',
+    blurb: 'Adinkra symbols printed on deep red and black cotton, the colours of remembrance. A quiet, dignified cloth for Sunday service and everyday wear, and easy for a new tailor to sew.',
   },
   {
     slug: 'forest-pride',
     name: 'Forest Pride',
     imageId: '1655682614757-a9a33fa45c93',
     tier: 'standard',
+    weave: 'Asante warp stripe',
     origin: 'Hand-woven in Bonwire, Ashanti Region, Ghana',
-    occasions: ['graduation', 'festival'],
-    colours: ['green', 'gold'],
-    pattern: 'stripes',
+    occasions: ['Graduations', 'Festivals & durbars'],
+    colours: ['Green', 'Gold', 'Black'],
+    patterns: ['Warp stripes'],
     added: '2026-08-30',
-    blurb: 'Bold green warp stripes broken by gold. A favourite for graduation stoles and matching family outfits.',
+    blurb: 'Green warp stripes for growth, edged in gold and steadied with black for maturity. A natural cloth for graduation stoles and the family photograph afterwards.',
   },
   {
     slug: 'indigo-crown',
     name: 'Indigo Crown',
     imageId: '1734868032501-448d1457dc38',
     tier: 'designer',
+    weave: 'Emaa Da',
     origin: 'Hand-woven in Adanwomase, Ashanti Region, Ghana',
-    occasions: ['wedding'],
-    colours: ['indigo', 'gold'],
-    pattern: 'geometric',
+    occasions: ['Weddings & engagements', 'Church & Sunday best'],
+    colours: ['Indigo', 'Gold'],
+    patterns: ['Geometric blocks'],
     added: '2026-10-09',
-    blurb: 'Deep indigo blocks crowned with gold. A limited weave for the bride, the groom and the top table.',
+    blurb: 'An Emaa Da design, "it has not happened before", in indigo and gold. Blue for peace and love, gold for the occasion: a limited weave for the bride, the groom and the top table.',
   },
   {
     slug: 'ashanti-sunrise',
     name: 'Ashanti Sunrise',
     imageId: '1660695828403-b42e117e0b4f',
     tier: 'standard',
+    weave: 'Asante check',
     origin: 'Hand-woven in Adanwomase, Ashanti Region, Ghana',
-    occasions: ['festival', 'naming'],
-    colours: ['gold', 'red', 'green'],
-    pattern: 'checks',
+    occasions: ['Festivals & durbars', 'Naming ceremonies', 'Graduations'],
+    colours: ['Gold', 'Red', 'Green'],
+    patterns: ['Woven checks'],
     added: '2026-06-18',
-    blurb: 'Gold, red and green checks, warm as first light. Joyful for naming days, festivals and every celebration in between.',
+    blurb: 'Gold, red and green checks, the colours most people picture when they think of kente. Joyful for naming days, festivals and every celebration in between.',
   },
   {
     slug: 'ewe-heritage',
     name: 'Ewe Heritage',
     imageId: '1444362408440-274ecb6fc730',
     tier: 'premium',
-    origin: 'Hand-woven in Kpetoe, Volta Region, Ghana',
-    occasions: ['church', 'wedding'],
-    colours: ['red', 'gold', 'green'],
-    pattern: 'motifs',
+    weave: 'Ewe kente',
+    origin: 'Hand-woven in Agotime Kpetoe, Volta Region, Ghana',
+    occasions: ['Weddings & engagements', 'Church & Sunday best'],
+    colours: ['Gold', 'Green', 'Indigo'],
+    patterns: ['Ewe motifs'],
     added: '2026-09-05',
-    blurb: 'Ewe kente with small woven motifs set between the strips. Finer and softer in the hand, with a story in every panel.',
+    blurb: 'Ewe kente from the Volta Region, where weavers set small figures between the strips, often drawn from proverbs. Finer and softer in the hand, with a story in every panel.',
   },
   {
     slug: 'bonwire-classic',
     name: 'Bonwire Classic',
     imageId: '1552710307-537199cd41c0',
     tier: 'designer',
+    weave: 'Adweneasa',
     origin: 'Hand-woven in Bonwire, Ashanti Region, Ghana',
-    occasions: ['wedding', 'graduation'],
-    colours: ['gold', 'green', 'red'],
-    pattern: 'checks',
+    occasions: ['Graduations', 'Festivals & durbars'],
+    colours: ['Gold', 'Red', 'Green'],
+    patterns: ['Geometric blocks', 'Woven checks'],
     added: '2026-10-02',
-    blurb: 'The classic Asante cloth from the town that made kente famous. Tight, even weaving with a rich, heavy drape.',
+    blurb: 'Adweneasa, "my skill is exhausted": a weave with a motif in every block, the weaver\'s finest work. From the town that made kente famous, with a rich, heavy drape.',
   },
   {
     slug: 'akwaaba-bloom',
     name: 'Akwaaba Bloom',
     imageId: '1784123476742-de48239d2fb0',
     tier: 'budget',
+    weave: 'Kente-style print',
     origin: 'Printed in Ghana on cotton',
-    occasions: ['everyday', 'naming'],
-    colours: ['gold', 'red'],
-    pattern: 'print',
+    occasions: ['Naming ceremonies', 'Everyday wear', 'Church & Sunday best'],
+    colours: ['Gold', 'Green'],
+    patterns: ['Printed'],
     added: '2026-10-12',
-    blurb: 'A bright kente-style print in gold and red. Light, cheerful and kind to the budget for big family orders.',
+    blurb: 'Akwaaba means welcome. A bright kente-style print in gold and green, light and cheerful for a new baby\'s naming day, and kind to the budget for big family orders.',
   },
 ].map((p) => ({ ...p, perMetre: TIERS[p.tier].perMetre, tierLabel: TIERS[p.tier].label }))
 
 export const productBySlug = (slug) => PRODUCTS.find((p) => p.slug === slug)
+
+// Filters: OR inside a category (Gold or Red), AND across categories (Weddings and Gold).
+// An empty category places no limit.
+export const EMPTY_FILTERS = { occasions: [], colours: [], patterns: [] }
+export const matchesFilters = (p, f) =>
+  Object.entries(f).every(([key, picked]) => picked.length === 0 || picked.some((tag) => p[key].includes(tag)))
 
 // Several looks at one cloth, cropped from the same photograph until real angles are shot.
 export const VIEWS = [
