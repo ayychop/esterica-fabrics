@@ -20,8 +20,10 @@ const CloseIcon = ({ className = 'h-5 w-5' }) => (
   </svg>
 )
 
+// Round header buttons: a clear gold-tinted ring on the dark header, turning full gold and growing a touch on hover.
+// 44px across on phones, 48px from tablets up; the icon inside is at least 24px.
 const roundBtn =
-  'grid h-10 w-10 place-items-center rounded-full border border-cream/30 text-cream transition-colors hover:border-gold hover:text-gold'
+  'grid h-11 w-11 place-items-center rounded-full border-2 border-gold/70 bg-ink/30 text-cream transition-[transform,border-color,color,background-color] duration-300 hover:scale-105 hover:border-gold hover:bg-gold/10 hover:text-gold focus-visible:scale-105 focus-visible:border-gold focus-visible:text-gold md:h-12 md:w-12'
 
 // Sections live on the home page: from any other page their links lead back home first.
 const hrefFor = (l, home) => l.to ?? (home ? `#${l.id}` : `/#${l.id}`)
@@ -35,13 +37,13 @@ function CartButton({ className = '' }) {
   const { count } = useCart()
   return (
     <Link to="/cart" aria-label={count ? `Cart, ${count} ${count === 1 ? 'item' : 'items'}` : 'Cart, empty'} className={`relative ${roundBtn} ${className}`}>
-      <BagIcon className="h-[19px] w-[19px]" />
+      <BagIcon className="h-6 w-6" />
       <AnimatePresence>
         {count > 0 && (
           <motion.span
             key={count}
             aria-hidden="true"
-            className="absolute -right-1.5 -top-1.5 grid h-[21px] min-w-[21px] place-items-center rounded-full bg-crimson px-1 text-[11px] font-bold leading-none text-cream ring-2 ring-charcoal"
+            className="absolute -right-1.5 -top-1.5 grid h-[22px] min-w-[22px] place-items-center rounded-full bg-[#E52222] px-1 text-[12px] font-bold leading-none text-white shadow-[0_0_0_2px_#FAF4E4,0_2px_8px_rgba(0,0,0,0.5)] md:h-6 md:min-w-6 md:text-[13px]"
             initial={{ scale: 0.3 }}
             animate={{ scale: 1 }}
             exit={{ scale: 0 }}
@@ -129,7 +131,7 @@ export default function Header({ solid, activeId, home = true }) {
           <div className="flex items-center gap-2.5 lg:hidden">
             <CartButton />
             <a href={`tel:${PHONE_TEL}`} aria-label="Call Esterica Fabrics" className={roundBtn}>
-              <PhoneIcon className="h-[18px] w-[18px]" />
+              <PhoneIcon className="h-6 w-6" />
             </a>
             <button
               ref={toggleRef}
@@ -140,7 +142,7 @@ export default function Header({ solid, activeId, home = true }) {
               onClick={() => setOpen(true)}
               className={roundBtn}
             >
-              <MenuIcon />
+              <MenuIcon className="h-6 w-6" />
             </button>
           </div>
         </div>
@@ -170,7 +172,7 @@ export default function Header({ solid, activeId, home = true }) {
                 <Logo className="h-9 w-auto md:h-11" />
               </NavLink>
               <button ref={closeRef} type="button" aria-label="Close menu" onClick={close} className={roundBtn}>
-                <CloseIcon />
+                <CloseIcon className="h-6 w-6" />
               </button>
             </div>
 
