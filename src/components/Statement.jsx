@@ -14,7 +14,7 @@ const THREADS = ['#E8B31A', '#0F7A34']
 // stitch (over, under, over) and is drawn left to right once, uncovered rather than stretched, so the stitches keep their size.
 function Thread({ color }) {
   return (
-    <span aria-hidden="true" className="flex h-[0.34em] items-center">
+    <span aria-hidden="true" className="flex h-[0.44em] items-center">
       <motion.span
         className="block h-[2px] w-full md:h-[3px]"
         style={{ background: `repeating-linear-gradient(90deg, ${color} 0 22px, transparent 22px 34px)` }}
