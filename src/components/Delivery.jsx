@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
-import { SectionHeading } from './ui'
+import { SectionHeading, WhatsAppIcon } from './ui'
 import { kenteDataUri } from './Kente'
+import { whatsappLink } from '../config'
 
 // Small gold line illustrations.
 const Parcel = () => (
@@ -26,7 +27,7 @@ const Shopfront = () => (
 )
 
 const ITEMS = [
-  { art: <Parcel />, label: 'By post', title: 'UK & Ireland Post', text: 'Standard UK post is £4.95, free on orders over £75, and arrives in 2 to 3 business days. Ireland postage is quoted with your order.', from: -140 },
+  { art: <Parcel />, label: 'By post', title: 'Worldwide Shipping', text: 'We ship worldwide. UK & Ireland standard post is calculated at checkout (£4.95). For international orders, please order via WhatsApp so we can calculate the exact shipping cost for your country.', link: { label: 'Order internationally on WhatsApp', href: whatsappLink("Hi Esterica Fabrics, I'd like to order fabric for delivery outside the UK and Ireland.\nCountry:\nFabric(s):\nMetres:") }, from: -140 },
   { art: <Shopfront />, label: 'In person', title: 'Collect in Store', text: 'Choose Click & Collect at checkout and collect free from our Wembley unit during opening hours.', from: 140 },
 ]
 
@@ -59,6 +60,16 @@ export default function Delivery() {
               </div>
               <h3 className="relative mt-5 font-serif text-[1.75rem] font-semibold leading-tight md:text-[2.1rem]">{it.title}</h3>
               <p className="relative mt-3 text-[16px] leading-[1.75] text-cream/85">{it.text}</p>
+              {it.link && (
+                <a
+                  href={it.link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="relative mt-4 inline-flex min-h-[44px] items-center gap-2 text-[15px] font-semibold text-gold underline decoration-gold/50 underline-offset-[6px] transition-colors hover:text-gold-light hover:decoration-gold-light"
+                >
+                  <WhatsAppIcon className="h-[18px] w-[18px]" /> {it.link.label}
+                </a>
+              )}
             </motion.article>
           ))}
         </div>

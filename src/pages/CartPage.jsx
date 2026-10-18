@@ -239,7 +239,7 @@ export default function CartPage() {
                       <WhatsAppIcon className="h-[18px] w-[18px]" /> Prefer to order on WhatsApp?
                     </a>
                   </div>
-                  <p className="text-[12px] leading-relaxed text-cream/55">Posting to Ireland? Choose your country at checkout and we will quote postage.</p>
+                  <p className="text-[12px] leading-relaxed text-cream/55">Posting to Ireland? Choose your country at checkout and we will quote postage. Anywhere else in the world, order on WhatsApp and we will quote shipping for your country.</p>
                 </div>
               </motion.aside>
             </div>

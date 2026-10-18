@@ -120,7 +120,7 @@ function StoryText() {
               We source authentic Kente from trusted weavers, choosing each piece by hand for its colour, its pattern and the quality of its weave. Then we bring it to London, so you never have to compromise.
             </p>
             <p>
-              From our Wembley unit we serve tailors, designers, families and the wider African community across the UK and Ireland. Whether you need two metres or twenty, we are here to help you find the right cloth.
+              From our Wembley unit we serve tailors, designers, families and the wider African community across the UK and around the world. Whether you need two metres or twenty, we are here to help you find the right cloth.
             </p>
           </Reveal>
     </>

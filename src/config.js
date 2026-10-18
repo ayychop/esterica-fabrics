@@ -1,12 +1,16 @@
 // Business details. Update the phone number here and it changes everywhere on the site.
-export const PHONE_DISPLAY = '+44 7921 654755'
-export const PHONE_TEL = '+447921654755'
-export const WHATSAPP_NUMBER = '447921654755'
+export const PHONE_DISPLAY = '+44 7484 629898'
+export const PHONE_TEL = '+447484629898'
+export const WHATSAPP_NUMBER = '447484629898'
 
 export const ADDRESS_LINES = ['Access Self Storage', 'First Way, Wembley', 'Unit 5580']
 export const ADDRESS_QUERY = 'Access Self Storage, First Way, Wembley'
 // Instagram profile, e.g. 'https://www.instagram.com/<handle>/'. The "Follow us on Instagram" button appears once this is set.
 export const INSTAGRAM_URL = ''
+export const TIKTOK_HANDLE = '@esterica2000'
+export const TIKTOK_URL = 'https://www.tiktok.com/@esterica2000'
+// Follower count shown on the home page. Update it as the account grows.
+export const TIKTOK_FOLLOWERS = '27,000+'
 
 export const HOURS = 'Monday to Friday, 11:00am to 5:00pm'
 

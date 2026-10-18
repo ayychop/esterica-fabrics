@@ -5,6 +5,7 @@ import Statement from '../components/Statement'
 import Story from '../components/Story'
 import Visit from '../components/Visit'
 import Delivery from '../components/Delivery'
+import TikTok from '../components/TikTok'
 import Trade from '../components/Trade'
 import FAQ from '../components/FAQ'
 import Contact from '../components/Contact'
@@ -30,7 +31,9 @@ export default function Home({ heroRef, ready, cloth = true }) {
       <Visit />
       <WeaveDivider from={C.cream} to={C.indigo} palette="jewel" />
       <Story />
-      <WeaveDivider from={C.indigo} to={C.forest} palette="jewel" />
+      <WeaveDivider from={C.indigo} to={C.gold} palette="jewel" />
+      <TikTok />
+      <WeaveDivider from={C.gold} to={C.forest} palette="forest" />
       <Delivery />
       <WeaveDivider from="#074D21" to={C.crimson} palette="forest" />
       <Trade />

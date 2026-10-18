@@ -1,6 +1,7 @@
 import Logo from './Logo'
 import { useConsent } from '../lib/consent'
-import { ADDRESS_LINES, HOURS, PHONE_DISPLAY, PHONE_TEL } from '../config'
+import { TikTokIcon } from './ui'
+import { ADDRESS_LINES, HOURS, PHONE_DISPLAY, PHONE_TEL, TIKTOK_HANDLE, TIKTOK_URL } from '../config'
 
 export default function Footer({ onLegal }) {
   const { openSettings } = useConsent()
@@ -13,6 +14,19 @@ export default function Footer({ onLegal }) {
           <p className="accent mt-4 max-w-sm text-xl leading-snug text-cream/70 md:text-2xl">
             Authentic Kente cloth, sold by the metre. Handpicked for tailors, designers and lovers of African heritage.
           </p>
+          <ul aria-label="Social" className="mt-5 flex gap-3">
+            <li>
+              <a
+                href={TIKTOK_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`Esterica Fabrics on TikTok, ${TIKTOK_HANDLE}`}
+                className="grid h-11 w-11 place-items-center rounded-full border border-gold/60 text-gold transition-colors hover:bg-gold hover:text-ink"
+              >
+                <TikTokIcon />
+              </a>
+            </li>
+          </ul>
         </div>
         <div>
           <h2 className="text-[11px] font-semibold uppercase tracking-[0.3em] text-gold">Find Us</h2>
