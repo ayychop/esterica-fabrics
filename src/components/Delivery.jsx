@@ -27,7 +27,7 @@ const Shopfront = () => (
 )
 
 const ITEMS = [
-  { art: <Parcel />, label: 'By post', title: 'Worldwide Shipping', text: 'We ship worldwide. UK & Ireland standard post is calculated at checkout (£4.95). For international orders, please order via WhatsApp so we can calculate the exact shipping cost for your country.', link: { label: 'Order internationally on WhatsApp', href: whatsappLink("Hi Esterica Fabrics, I'd like to order fabric for delivery outside the UK and Ireland.\nCountry:\nFabric(s):\nMetres:") }, from: -140 },
+  { art: <Parcel />, label: 'By post', title: 'UK Standard Shipping', text: '£4.95 for UK addresses. Free over £75.', note: 'Ireland & International shipping is quoted via WhatsApp.', link: { label: 'Get a shipping quote on WhatsApp', href: whatsappLink("Hi Esterica Fabrics, I'd like to order fabric for delivery outside the UK.\nCountry:\nFabric(s):\nMetres:") }, from: -140 },
   { art: <Shopfront />, label: 'In person', title: 'Collect in Store', text: 'Choose Click & Collect at checkout and collect free from our Wembley unit during opening hours.', from: 140 },
 ]
 
@@ -60,6 +60,7 @@ export default function Delivery() {
               </div>
               <h3 className="relative mt-5 font-serif text-[1.75rem] font-semibold leading-tight md:text-[2.1rem]">{it.title}</h3>
               <p className="relative mt-3 text-[16px] leading-[1.75] text-cream/85">{it.text}</p>
+              {it.note && <p className="relative mt-2 text-[16px] leading-[1.75] text-cream/85">{it.note}</p>}
               {it.link && (
                 <a
                   href={it.link.href}

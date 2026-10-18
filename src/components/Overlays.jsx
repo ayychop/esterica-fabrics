@@ -118,7 +118,7 @@ const LEGAL = {
     body: [
       'All fabrics are sold by the metre, cut to length in half metres. Prices shown online include any bulk discount. Every order is confirmed with you directly, including stock and payment, before it is cut.',
       'Because every cloth is woven by hand, colours and patterns may vary slightly from photographs.',
-      'We ship worldwide. Standard UK post is £4.95, free on orders over £75. Postage to Ireland is quoted with your order, and international orders are placed on WhatsApp so we can quote the exact shipping cost for your country. Click & Collect from our Wembley unit is free during opening hours.',
+      'We ship worldwide. Standard UK post is £4.95, free on orders over £75. Ireland & International shipping is quoted via WhatsApp, and the cost is agreed with you before your order is cut. Click & Collect from our Wembley unit is free during opening hours.',
       'Full terms of sale will be provided with your order confirmation.',
     ],
   },
