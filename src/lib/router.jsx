@@ -65,5 +65,6 @@ export function matchRoute(path) {
   if (path === '/cart') return { name: 'cart' }
   if (path === '/checkout') return { name: 'checkout' }
   if (path === '/order-confirmed') return { name: 'confirmed' }
+  if (path === '/success') return { name: 'success' }
   return { name: 'notfound' }
 }

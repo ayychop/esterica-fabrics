@@ -1,8 +1,9 @@
 import Stripe from "npm:stripe@14.0.0";
-// The shop's own product and pricing modules, so the charge always matches the site and never the browser.
-import { productBySlug } from "../../../src/data/products.js";
-import { COUNTRIES, MAX_CART_METRES, MIN_METRES, SHIPPING, STEP, metresLabel, priceLine, shippingCost } from "../../../src/lib/pricing.js";
-import { img } from "../../../src/config.js";
+// Local copies of the shop's product and pricing modules (npm run functions:sync), so the charge always
+// matches the site and never the browser.
+import { productBySlug } from "./products.js";
+import { COUNTRIES, MAX_CART_METRES, MIN_METRES, SHIPPING, STEP, metresLabel, priceLine, shippingCost } from "./pricing.js";
+import { img } from "./config.js";
 
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") as string, {
   apiVersion: "2022-11-15",

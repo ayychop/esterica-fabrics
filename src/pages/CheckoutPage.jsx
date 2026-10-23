@@ -58,7 +58,9 @@ function PaymentStep({ country }) {
       window.location.href = data.url
     } catch (error) {
       console.error('Payment error:', error)
-      alert('Could not initiate checkout.')
+      // A refused request carries the function's own reason, such as postage to Ireland being quoted.
+      const reason = await error.context?.json?.().then((body) => body.error, () => null)
+      alert(reason || 'Could not start card checkout. Please try again, or order on WhatsApp.')
     }
   }
 

@@ -16,6 +16,7 @@ import ProductPage from './pages/ProductPage'
 import CartPage from './pages/CartPage'
 import CheckoutPage from './pages/CheckoutPage'
 import ConfirmationPage from './pages/ConfirmationPage'
+import SuccessPage from './pages/SuccessPage'
 import NotFoundPage from './pages/NotFoundPage'
 import { productBySlug } from './data/products'
 import { NAV_LINKS } from './config'
@@ -83,6 +84,8 @@ function Page({ route, heroRef, revealed, introOver }) {
       return <CheckoutPage />
     case 'confirmed':
       return <ConfirmationPage />
+    case 'success':
+      return <SuccessPage />
     default:
       return <NotFoundPage />
   }

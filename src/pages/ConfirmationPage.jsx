@@ -11,7 +11,7 @@ const EASE = [0.22, 1, 0.36, 1]
 const RIBBON_COLOURS = ['#E8B31A', '#C41E1E', '#0F7A34', '#E8B31A', '#1A4DA0', '#FAF4E4', '#C41E1E', '#E8B31A', '#0F7A34', '#1A4DA0']
 const RIBBON_LENGTHS = [62, 88, 46, 100, 70, 38, 84, 56, 94, 50, 76, 42, 90, 64, 34, 80, 58, 96, 44, 72]
 
-function Ribbons() {
+export function Ribbons() {
   return (
     <div aria-hidden="true" className="flex h-[16vh] min-h-[90px] items-start md:h-[22vh]">
       {RIBBON_LENGTHS.map((len, i) => (
