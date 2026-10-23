@@ -109,6 +109,7 @@ const LEGAL = {
     body: [
       'Esterica Fabrics respects your privacy. This website does not collect personal data through analytics or advertising tools.',
       'When you contact us on WhatsApp, by phone or through the enquiry form, we use your details only to answer your enquiry and fulfil your order.',
+      'Card payments are handled by Stripe. Your card details go to Stripe and never reach us. We receive your name, email, phone number and delivery address to fulfil your order.',
       'If you accept cookies, Google may set cookies when the map loads. You can withdraw that choice at any time from Cookie Settings.',
       'To ask about the information we hold, please contact us on WhatsApp or by phone.',
     ],
@@ -116,7 +117,8 @@ const LEGAL = {
   terms: {
     title: 'Terms',
     body: [
-      'All fabrics are sold by the metre, cut to length in half metres. Prices shown online include any bulk discount. Every order is confirmed with you directly, including stock and payment, before it is cut.',
+      'All fabrics are sold by the metre, cut to length in half metres. Prices shown online include any bulk discount.',
+      'You can pay online by card through Stripe for UK post or Click & Collect. Payment is taken when you place the order, and the total at checkout includes any postage. You can also order on WhatsApp instead, and those orders are confirmed with you directly, including stock and payment, before they are cut.',
       'Because every cloth is woven by hand, colours and patterns may vary slightly from photographs.',
       'We ship worldwide. Standard UK post is £4.95, free on orders over £75. Ireland & International shipping is quoted via WhatsApp, and the cost is agreed with you before your order is cut. Click & Collect from our Wembley unit is free during opening hours.',
       'Full terms of sale will be provided with your order confirmation.',
