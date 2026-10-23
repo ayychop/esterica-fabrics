@@ -8,7 +8,7 @@
     "build": "vite build",
     "preview": "vite preview --host",
     "functions:sync": "node scripts/sync-function-data.mjs",
-    "functions:deploy": "npm run functions:sync && supabase functions deploy create-checkout-session"
+    "functions:deploy": "npm run functions:sync && supabase functions deploy create-checkout-session --use-api"
   },
   "dependencies": {
     "@react-three/drei": "^9.117.3",
