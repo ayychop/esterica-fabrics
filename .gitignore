@@ -7,3 +7,7 @@ dist
 .claude/*.log
 .claude/cache/
 .claude/skills/impeccable/scripts/bin/
+
+# Local environment secrets
+.env.local
+.env.*.local

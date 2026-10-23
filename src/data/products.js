@@ -1,5 +1,5 @@
-import { img } from '../config'
-import { TIERS } from '../lib/pricing'
+import { img } from '../config.js'
+import { TIERS } from '../lib/pricing.js'
 
 // Sample stock for the demo shop. Swap names, copy and photography for the real bolts before launch.
 //

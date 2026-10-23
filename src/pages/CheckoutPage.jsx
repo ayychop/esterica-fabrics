@@ -9,6 +9,7 @@ import { useCart } from '../lib/cart'
 import { orderMessage, orderRef } from '../lib/order'
 import { COUNTRIES, metresLabel, money, shippingCost } from '../lib/pricing'
 import { PHONE_DISPLAY, img, whatsappLink } from '../config'
+import { supabase } from '../supabaseClient'
 
 export const CONFIRM_KEY = 'esterica-last-order'
 
@@ -43,9 +44,24 @@ function Step({ n, title, delay = 0, children }) {
   )
 }
 
-// TODO: Integrate Stripe once shop owner approves the site.
-// Until then the card option is shown greyed out and cannot be chosen; WhatsApp is the live way to order.
-function PaymentStep() {
+// Card payments go through Stripe Checkout via the create-checkout-session Supabase function.
+function PaymentStep({ country }) {
+  const cart = useCart()
+
+  const handleStripeCheckout = async () => {
+    try {
+      const { data, error } = await supabase.functions.invoke('create-checkout-session', {
+        // Only slugs and metres leave the browser: the function prices everything from the product data.
+        body: { items: cart.items.map(({ slug, metres }) => ({ slug, metres })), method: cart.method, country },
+      })
+      if (error) throw error
+      window.location.href = data.url
+    } catch (error) {
+      console.error('Payment error:', error)
+      alert('Could not initiate checkout.')
+    }
+  }
+
   return (
     <Step n="3" title="Payment" delay={0.36}>
       <div className="grid gap-2.5" role="radiogroup" aria-label="Payment method">
@@ -56,13 +72,21 @@ function PaymentStep() {
           </span>
           <span className="mt-1 block text-[13px] leading-snug text-charcoal/70">Your order opens in WhatsApp, ready to send. We reply with payment details.</span>
         </RadioCard>
-        <RadioCard name="payment" value="card" checked={false} onChange={() => {}} disabled>
-          <span className="flex flex-wrap items-center gap-2.5 text-[15px] font-semibold">
-            Card
-            <span className="bg-charcoal px-2 py-1 text-[10px] font-bold uppercase leading-none tracking-[0.18em] text-cream">Coming Soon</span>
-          </span>
-          <span className="mt-1 block text-[13px] leading-snug text-charcoal/70">Visa, Mastercard and Apple Pay, once the shop goes live.</span>
-        </RadioCard>
+        <div
+          onClick={handleStripeCheckout} 
+          className="cursor-pointer flex flex-col gap-1 p-4 border border-charcoal/35 hover:border-charcoal transition-colors"
+        >
+          <div className="flex items-center gap-2.5 text-[15px] font-semibold">
+            <input type="radio" name="paymentMethod" className="w-4 h-4 accent-charcoal" readOnly />
+            <span>Pay with Card</span>
+            <span className="py-1 px-2 text-[10px] font-bold uppercase leading-none tracking-[0.18em] text-cream bg-charcoal rounded">
+              Secure
+            </span>
+          </div>
+          <p className="text-xs leading-snug text-charcoal/70 ml-6">
+            Visa, Mastercard, and Apple Pay.
+          </p>
+        </div>
       </div>
     </Step>
   )
@@ -124,7 +148,7 @@ export default function CheckoutPage() {
         <div className="mx-auto max-w-[1400px] px-5 sm:px-8 lg:px-12">
           <PageTitle
             title="Checkout"
-            line="Nothing is charged online"
+            line="Pay securely by card, or order on WhatsApp"
             crumbs={[{ label: 'The Collection', to: '/shop' }, { label: 'Cart', to: '/cart' }, { label: 'Checkout' }]}
           />
 
@@ -164,7 +188,7 @@ export default function CheckoutPage() {
                 </div>
               </Step>
 
-              <PaymentStep />
+              <PaymentStep country={country} />
             </div>
 
             <motion.aside
