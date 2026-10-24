@@ -8,7 +8,8 @@ import { Link } from '../lib/router'
 import { useCart } from '../lib/cart'
 import { orderMessage } from '../lib/order'
 import { FREE_SHIPPING_FROM, MAX_CART_METRES, SHIPPING, TRADE_MIN, deliveryWindow, metresLabel, money, percent, perMetreLabel } from '../lib/pricing'
-import { img, whatsappLink } from '../config'
+import { whatsappLink } from '../config'
+import { productImg } from '../data/products'
 
 const EASE = [0.22, 1, 0.36, 1]
 
@@ -141,7 +142,7 @@ function Line({ line, index, onMetres, onRemove }) {
       <Link to={href} className="block" tabIndex={-1} aria-hidden="true">
         <div className="photo aspect-[4/5] w-full bg-sand">
           <div className="fabric-zoom absolute inset-0">
-            <img src={img(product.imageId, 400, 500)} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover" />
+            <img src={productImg(product.image, 400, 500)} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover" />
           </div>
         </div>
       </Link>
@@ -155,7 +156,7 @@ function Line({ line, index, onMetres, onRemove }) {
 
         <div className="mt-auto flex flex-wrap items-end justify-between gap-x-6 gap-y-4 pt-6">
           <div className="flex flex-wrap items-center gap-4">
-            <Stepper value={line.metres} onChange={onMetres} max={MAX_CART_METRES} label={`Metres of ${product.name}`} size="sm" />
+            <Stepper value={line.metres} onChange={onMetres} max={line.max} label={`Metres of ${product.name}`} size="sm" />
             <button type="button" onClick={onRemove} className="min-h-[40px] text-[12px] font-semibold uppercase tracking-[0.18em] text-charcoal/60 underline underline-offset-4 hover:text-crimson">
               Remove
             </button>
@@ -168,7 +169,9 @@ function Line({ line, index, onMetres, onRemove }) {
             </p>
           </div>
         </div>
-        {line.metres >= MAX_CART_METRES && (
+        {line.max < MAX_CART_METRES && line.metres >= line.max ? (
+          <p className="mt-3 text-[13px] text-crimson">That is all {metresLabel(line.max)} we have in stock.</p>
+        ) : line.metres >= MAX_CART_METRES && (
           <p className="mt-3 text-[13px] text-crimson">For {TRADE_MIN}m or more, ask for trade pricing on WhatsApp.</p>
         )}
       </div>

@@ -8,9 +8,10 @@ import { TRADE_MESSAGE } from '../components/Trade'
 import { Link } from '../lib/router'
 import { useCart } from '../lib/cart'
 import { useSmoothScroll } from '../lib/scroll'
-import { VIEWS, relatedTo, viewSrc } from '../data/products'
-import { SHIPPING, TRADE_MIN, metresLabel, money, nextBand, percent, perMetreLabel, priceLine } from '../lib/pricing'
-import { img, whatsappLink } from '../config'
+import { VIEWS, canResize, productImg, productSrcSet, relatedTo, viewSrc } from '../data/products'
+import { useProducts } from '../lib/products'
+import { MIN_METRES, SHIPPING, TRADE_MIN, metresLabel, money, nextBand, percent, perMetreLabel, priceLine } from '../lib/pricing'
+import { whatsappLink } from '../config'
 
 // The homepage hero's curve, shared with the shop.
 const EASE = [0.22, 1, 0.36, 1]
@@ -21,6 +22,8 @@ function ProductHero({ product, onScrollCue }) {
   const ref = useRef(null)
   const still = useReducedMotion()
   const [view, setView] = useState(0)
+  // Close-ups are crops of an Unsplash photograph; an uploaded photograph shows as the full cloth only.
+  const views = canResize(product.image) ? VIEWS : VIEWS.slice(0, 1)
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] })
   const y = useTransform(scrollYProgress, [0, 1], ['0%', still ? '0%' : '18%'])
 
@@ -37,8 +40,8 @@ function ProductHero({ product, onScrollCue }) {
           <motion.img
             key={view}
             // The full cloth keeps its natural proportions; the close-ups are cropped to the cover's shape
-            src={VIEWS[view].fp ? viewSrc(product.imageId, VIEWS[view], 1600, 1000) : img(product.imageId, 1600)}
-            srcSet={[800, 1200, 1600, 2400].map((w) => `${VIEWS[view].fp ? viewSrc(product.imageId, VIEWS[view], w, Math.round(w * 0.625)) : img(product.imageId, w)} ${w}w`).join(', ')}
+            src={views[view].fp ? viewSrc(product.image, views[view], 1600, 1000) : productImg(product.image, 1600)}
+            srcSet={views[view].fp ? [800, 1200, 1600, 2400].map((w) => `${viewSrc(product.image, views[view], w, Math.round(w * 0.625))} ${w}w`).join(', ') : productSrcSet(product.image, [800, 1200, 1600, 2400])}
             sizes="100vw"
             alt=""
             fetchpriority={view === 0 ? 'high' : undefined}
@@ -78,13 +81,13 @@ function ProductHero({ product, onScrollCue }) {
       </div>
 
       {/* Close-up views of the cloth, from tablet up: top right, clear of the name and the WhatsApp button */}
-      <motion.div
+      {views.length > 1 && <motion.div
         {...show(0.4)}
         role="group"
         aria-label="Views of the cloth"
         className="absolute right-8 top-[108px] hidden flex-col items-end gap-1 rounded-sm bg-ink/55 px-4 py-3 backdrop-blur-md md:flex lg:right-12"
       >
-        {VIEWS.map((v, i) => (
+        {views.map((v, i) => (
           <button
             key={v.label}
             type="button"
@@ -95,7 +98,7 @@ function ProductHero({ product, onScrollCue }) {
             {v.label}
           </button>
         ))}
-      </motion.div>
+      </motion.div>}
 
       {/* Scroll cue: large, bright, the arrow bobbing slowly so the eye finds it */}
       <motion.button
@@ -164,8 +167,8 @@ function BuyBar({ product, metres, hidden }) {
                 >
                   <WhatsAppIcon className="h-5 w-5" />
                 </a>
-                <button type="button" onClick={() => add(product.slug, metres)} className="btn-gold !min-h-[48px] !px-4 !text-[12px]">
-                  <BagIcon className="h-[18px] w-[18px]" /> Add to Cart
+                <button type="button" onClick={() => add(product.slug, metres)} disabled={product.stock < MIN_METRES} className="btn-gold !min-h-[48px] !px-4 !text-[12px] disabled:opacity-60">
+                  <BagIcon className="h-[18px] w-[18px]" /> {product.stock < MIN_METRES ? 'Sold out' : 'Add to Cart'}
                 </button>
               </>
             )}
@@ -181,6 +184,9 @@ function Purchase({ product, metres, setMetres, actionsRef }) {
   const isTrade = metres >= TRADE_MIN
   const price = priceLine(product.perMetre, metres)
   const next = nextBand(metres)
+  const soldOut = product.stock < MIN_METRES
+  // Real shelf stock, said plainly once it runs below the bulk band.
+  const lowStock = !soldOut && product.stock < 10
 
   const enter = (delay) => ({
     initial: { opacity: 0, y: 24 },
@@ -198,6 +204,11 @@ function Purchase({ product, metres, setMetres, actionsRef }) {
         <span className="font-serif text-[clamp(3.6rem,6vw,5rem)] font-semibold leading-none text-gold">{perMetreLabel(product.perMetre)}</span>
         <span className="text-[12px] font-semibold uppercase tracking-[0.24em] text-cream/70">per metre</span>
       </motion.p>
+      {(soldOut || lowStock) && (
+        <p className={`mt-4 inline-block px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.2em] ${soldOut ? 'bg-crimson text-cream' : 'bg-gold text-ink'}`}>
+          {soldOut ? 'Sold out' : `${metresLabel(product.stock)} left in stock`}
+        </p>
+      )}
 
       <motion.div {...enter(0.16)} className="mt-9">
         <QuantitySelector value={metres} onChange={setMetres} dark />
@@ -243,8 +254,8 @@ function Purchase({ product, metres, setMetres, actionsRef }) {
           </a>
         ) : (
           <>
-            <button type="button" onClick={() => add(product.slug, metres)} className="btn-gold min-h-[60px] text-[15px]">
-              <BagIcon /> Add to Cart
+            <button type="button" onClick={() => add(product.slug, metres)} disabled={soldOut} className="btn-gold min-h-[60px] text-[15px] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0">
+              <BagIcon /> {soldOut ? 'Sold out' : 'Add to Cart'}
             </button>
             <a href={whatsappLink(orderText(product, metres))} target="_blank" rel="noopener noreferrer" className="btn-outline-light min-h-[56px]">
               <WhatsAppIcon /> Order via WhatsApp
@@ -265,7 +276,8 @@ function Purchase({ product, metres, setMetres, actionsRef }) {
 
 function CompleteTheLook({ product }) {
   const rail = useRef(null)
-  const items = relatedTo(product, 6)
+  const { products } = useProducts()
+  const items = relatedTo(product, products, 6)
   const nudge = (d) => rail.current?.scrollBy({ left: d * rail.current.clientWidth * 0.8, behavior: 'smooth' })
   const arrow = 'grid h-12 w-12 place-items-center rounded-full border border-charcoal/30 text-charcoal transition-colors hover:border-charcoal hover:bg-charcoal hover:text-gold'
 
@@ -341,7 +353,7 @@ export default function ProductPage({ product }) {
     ['Best for', product.occasions.join(', ')],
     ['Cut', 'To your length, in half metres'],
     ['Care', 'Dry clean, or hand wash cold. Iron on the reverse.'],
-  ]
+  ].filter(([, v]) => v)
 
   return (
     <>
@@ -353,7 +365,7 @@ export default function ProductPage({ product }) {
           <div className="lg:col-span-6 xl:col-span-7">
             <Reveal>
               <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-charcoal/65">About the cloth</p>
-              <p className="mt-6 font-serif text-[clamp(1.6rem,2.6vw,2.3rem)] leading-[1.3] text-charcoal">{product.blurb}</p>
+              <p className="mt-6 font-serif text-[clamp(1.6rem,2.6vw,2.3rem)] leading-[1.3] text-charcoal">{product.blurb || `${product.tierLabel}, cut to your length in half metres.`}</p>
             </Reveal>
             <dl className="mt-12 border-t border-charcoal/15 md:mt-16">
               {details.map(([k, v], i) => (

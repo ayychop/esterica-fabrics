@@ -1,12 +1,13 @@
 import SwatchBook from './SwatchBook'
-import { PRODUCTS } from '../../data/products'
+import { useProducts } from '../../lib/products'
 import { useRouter } from '../../lib/router'
 
-const NEWEST = [...PRODUCTS].sort((a, b) => b.added.localeCompare(a.added))
-
 // The homepage's collection: the same swatch book as the shop, newest cloth first.
-// "Browse all" opens the shop at its full grid.
+// "Browse all" opens the shop at its full grid. Until the catalogue arrives, its place is held.
 export default function HomeSwatchBook() {
   const { navigate } = useRouter()
-  return <SwatchBook id="collection" products={NEWEST} browse={() => navigate('/shop#browse')} />
+  const { products, status } = useProducts()
+  if (status !== 'ready') return <section id="collection" aria-label="Swatch book" aria-busy="true" className="min-h-[70svh] bg-charcoal" />
+  const newest = [...products].sort((a, b) => b.added.localeCompare(a.added))
+  return <SwatchBook id="collection" products={newest} browse={() => navigate('/shop#browse')} />
 }

@@ -2,11 +2,10 @@ import { useEffect, useState } from 'react'
 import { BagIcon, CheckIcon } from '../ui'
 import { Link } from '../../lib/router'
 import { useCart } from '../../lib/cart'
-import { img } from '../../config'
+import { productImg, productSrcSet } from '../../data/products'
 import { perMetreLabel } from '../../lib/pricing'
 
 const WIDTHS = [480, 720, 960, 1280]
-const srcSet = (id) => WIDTHS.map((w) => `${img(id, w, Math.round(w * 1.25))} ${w}w`).join(', ')
 
 // The shop's editorial card: the cloth is the whole card, the words sit quietly underneath.
 // `index` offsets each cloth's breathing so neighbours never move in step.
@@ -27,8 +26,8 @@ export default function FabricCard({ product, index = 0, eager = false, sizes = 
         <div className="photo aspect-[4/5] w-full bg-sand">
           <div className="fabric-zoom absolute inset-0">
             <img
-              src={img(product.imageId, 960, 1200)}
-              srcSet={srcSet(product.imageId)}
+              src={productImg(product.image, 960, 1200)}
+              srcSet={productSrcSet(product.image, WIDTHS, 1.25)}
               sizes={sizes}
               alt=""
               loading={eager ? 'eager' : 'lazy'}

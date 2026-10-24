@@ -1,13 +1,17 @@
 import Stripe from "npm:stripe@14.0.0";
-// Local copies of the shop's product and pricing modules (npm run functions:sync), so the charge always
-// matches the site and never the browser.
-import { productBySlug } from "./products.js";
-import { COUNTRIES, MAX_CART_METRES, MIN_METRES, SHIPPING, STEP, metresLabel, priceLine, shippingCost } from "./pricing.js";
-import { img } from "./config.js";
+import { createClient } from "npm:@supabase/supabase-js@2";
+// A local copy of the shop's pricing module (npm run functions:sync), so bulk discounts and postage
+// always match the site. Prices per metre come from the products table, never from the browser.
+import { COUNTRIES, MAX_CART_METRES, MIN_METRES, SHIPPING, STEP, TIERS, metresLabel, priceLine, shippingCost } from "./pricing.js";
 
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") as string, {
   apiVersion: "2022-11-15",
   httpClient: Stripe.createFetchHttpClient(),
+});
+
+// The service role reads the catalogue whatever its Row Level Security says.
+const supabase = createClient(Deno.env.get("SUPABASE_URL") as string, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") as string, {
+  auth: { persistSession: false },
 });
 
 const corsHeaders = {
@@ -19,8 +23,14 @@ const SITE = "https://esterica.boanetworks.com";
 
 class BadRequest extends Error {}
 
+type ProductRow = { slug: string; name: string; price: number; category: string; stock: number | string; image_url: string | null };
+
+// Unsplash photographs are sized through the URL, as on the site; uploaded ones are sent as they are.
+const stripeImage = (url: string | null) =>
+  !url ? [] : [url.startsWith("https://images.unsplash.com/") ? `${url}?auto=format&fit=crop&w=800&q=70` : url];
+
 // Accepts only { slug, metres } per cloth. Anything else the browser sends, such as a price, is ignored.
-function priceCart(items: unknown) {
+async function priceCart(items: unknown) {
   if (!Array.isArray(items) || items.length === 0 || items.length > 50) throw new BadRequest("Your cart is empty.");
 
   // Merge repeats of one cloth so the per-cloth metre limit cannot be dodged.
@@ -28,17 +38,29 @@ function priceCart(items: unknown) {
   for (const item of items) {
     const slug = typeof item?.slug === "string" ? item.slug : "";
     const metres = Number(item?.metres);
-    if (!productBySlug(slug)) throw new BadRequest("A fabric in your cart is no longer available.");
+    if (!slug) throw new BadRequest("A fabric in your cart is no longer available.");
     if (!Number.isFinite(metres)) throw new BadRequest("Invalid length.");
     metresBySlug.set(slug, (metresBySlug.get(slug) ?? 0) + metres);
   }
 
+  const { data, error } = await supabase
+    .from("products")
+    .select("slug, name, price, category, stock, image_url")
+    .in("slug", [...metresBySlug.keys()]);
+  if (error) throw error;
+  const bySlug = new Map((data as ProductRow[]).map((p) => [p.slug, p]));
+
   return [...metresBySlug].map(([slug, metres]) => {
+    const product = bySlug.get(slug);
+    if (!product) throw new BadRequest("A fabric in your cart is no longer available.");
     if (metres < MIN_METRES || metres > MAX_CART_METRES || Math.round(metres / STEP) * STEP !== metres) {
       throw new BadRequest("Invalid length.");
     }
-    const product = productBySlug(slug)!;
-    return { product, metres, ...priceLine(product.perMetre, metres) };
+    const stock = Number(product.stock);
+    if (stock < MIN_METRES) throw new BadRequest(`${product.name} has sold out. Please remove it from your cart.`);
+    if (metres > stock) throw new BadRequest(`Only ${metresLabel(stock)} of ${product.name} is left. Please lower the length in your cart.`);
+    const tierLabel = TIERS[product.category as keyof typeof TIERS]?.label ?? product.category;
+    return { product, tierLabel, metres, ...priceLine(product.price, metres) };
   });
 }
 
@@ -53,7 +75,12 @@ Deno.serve(async (req) => {
     if (!(method in SHIPPING)) throw new BadRequest("Choose a delivery option.");
     if (!(country in COUNTRIES)) throw new BadRequest("Choose a country.");
 
-    const lines = priceCart(items);
+    // The owner can close the shop from the admin portal; with no settings row it stays open.
+    const settings = await supabase.from("store_settings").select("is_open").eq("id", 1).maybeSingle();
+    if (settings.error) throw settings.error;
+    if (settings.data?.is_open === false) throw new BadRequest("We are not taking card payments online at the moment. Please order on WhatsApp.");
+
+    const lines = await priceCart(items);
     const subtotal = lines.reduce((sum, l) => sum + l.total, 0);
     const shipping = shippingCost(method, subtotal, country);
     if (shipping === null) throw new BadRequest("Postage outside the UK is quoted, so please order on WhatsApp.");
@@ -64,8 +91,8 @@ Deno.serve(async (req) => {
         currency: "gbp",
         product_data: {
           name: `${l.product.name}, ${metresLabel(l.metres)}`,
-          description: l.rate ? `${l.product.tierLabel}, includes ${Math.round(l.rate * 100)}% bulk discount` : l.product.tierLabel,
-          images: [img(l.product.imageId, 800)],
+          description: l.rate ? `${l.tierLabel}, includes ${Math.round(l.rate * 100)}% bulk discount` : l.tierLabel,
+          images: stripeImage(l.product.image_url),
         },
         unit_amount: l.total,
       },

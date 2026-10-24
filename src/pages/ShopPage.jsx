@@ -5,7 +5,8 @@ import FilterOverlay, { FILTER_GROUPS, filterCount } from '../components/shop/Fi
 import CampaignTile from '../components/shop/CampaignTile'
 import WeaveDivider from '../components/WeaveDivider'
 import Trade from '../components/Trade'
-import { EMPTY_FILTERS, PRODUCTS, matchesFilters } from '../data/products'
+import { EMPTY_FILTERS, matchesFilters } from '../data/products'
+import { useProducts } from '../lib/products'
 import { useSmoothScroll } from '../lib/scroll'
 
 const EASE = [0.22, 1, 0.36, 1]
@@ -30,6 +31,7 @@ export default function ShopPage() {
   const browseRef = useRef(null)
   const shopRef = useRef(null)
   const { scrollTo } = useSmoothScroll()
+  const { products } = useProducts()
 
   useEffect(() => {
     saved = { filters, sort }
@@ -46,7 +48,7 @@ export default function ShopPage() {
     return () => io.disconnect()
   }, [])
 
-  const results = useMemo(() => PRODUCTS.filter((p) => matchesFilters(p, filters)).sort(SORTS[sort].fn), [filters, sort])
+  const results = useMemo(() => products.filter((p) => matchesFilters(p, filters)).sort(SORTS[sort].fn), [products, filters, sort])
   const active = FILTER_GROUPS.flatMap((g) => filters[g.key].map((tag) => ({ key: g.key, tag })))
   const remove = (key, tag) => setFilters((f) => ({ ...f, [key]: f[key].filter((t) => t !== tag) }))
 

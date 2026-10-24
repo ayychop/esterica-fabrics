@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { ArrowIcon, BagIcon, CheckIcon } from '../ui'
 import { Link } from '../../lib/router'
 import { useCart } from '../../lib/cart'
-import { img } from '../../config'
+import { productImg, productSrcSet } from '../../data/products'
 import { perMetreLabel } from '../../lib/pricing'
 
 const WIDTHS = [480, 720, 960, 1280, 1600]
@@ -28,8 +28,8 @@ export default function CampaignTile({ product, big = false, index = 0, eager = 
         <div className={`photo w-full bg-charcoal ${big ? 'aspect-[4/5]' : 'aspect-[4/5] md:aspect-[3/4]'}`}>
           <div className="tile-zoom absolute inset-0">
             <img
-              src={img(product.imageId, 1280, Math.round(1280 * ratio))}
-              srcSet={WIDTHS.map((w) => `${img(product.imageId, w, Math.round(w * ratio))} ${w}w`).join(', ')}
+              src={productImg(product.image, 1280, Math.round(1280 * ratio))}
+              srcSet={productSrcSet(product.image, WIDTHS, ratio)}
               sizes={sizes ?? (big ? '(min-width: 768px) 58vw, 100vw' : '(min-width: 768px) 38vw, 100vw')}
               alt=""
               loading={eager ? 'eager' : 'lazy'}

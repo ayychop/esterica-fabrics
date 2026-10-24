@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Photo, BagIcon, CheckIcon } from '../ui'
 import { Link } from '../../lib/router'
 import { useCart } from '../../lib/cart'
-import { img } from '../../config'
+import { productImg } from '../../data/products'
 import { perMetreLabel } from '../../lib/pricing'
 
 // Each price tier wears its own solid Kente colour.
@@ -36,7 +36,7 @@ export default function ProductCard({ product, dark = false, eager = false }) {
     <article className="swatch group flex h-full flex-col">
       <Link to={href} className="block" aria-label={`${product.name}, ${product.tierLabel}, ${perMetreLabel(product.perMetre)} per metre`}>
         <div className="swatch-cloth relative shadow-[0_22px_40px_-20px_rgba(10,10,10,0.55)]">
-          <Photo className="aspect-[4/5] w-full" src={img(product.imageId, 560, 700)} alt="" loading={eager ? 'eager' : 'lazy'} />
+          <Photo className="aspect-[4/5] w-full" src={productImg(product.image, 560, 700)} alt="" loading={eager ? 'eager' : 'lazy'} />
           <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-[2] overflow-hidden">
             <div className="swatch-sheen absolute inset-y-0 w-1/3 bg-gradient-to-r from-transparent via-cream/30 to-transparent" />
           </div>

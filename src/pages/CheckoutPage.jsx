@@ -7,9 +7,11 @@ import { ArrowIcon, BagIcon, WhatsAppIcon } from '../components/ui'
 import { Link, useRouter } from '../lib/router'
 import { useSmoothScroll } from '../lib/scroll'
 import { useCart } from '../lib/cart'
+import { useProducts } from '../lib/products'
 import { orderMessage, orderRef } from '../lib/order'
 import { COUNTRIES, metresLabel, money, shippingCost } from '../lib/pricing'
-import { PHONE_DISPLAY, img, whatsappLink } from '../config'
+import { PHONE_DISPLAY, whatsappLink } from '../config'
+import { productImg } from '../data/products'
 import { supabase, supabaseConfigError } from '../supabaseClient'
 
 export const CONFIRM_KEY = 'esterica-last-order'
@@ -57,15 +59,26 @@ function PayError({ message, dark = false }) {
   )
 }
 
-function PaymentStep({ onCard, paying, error }) {
+// Shown when the owner has closed the store from the admin portal: card checkout pauses, WhatsApp stays open.
+function ClosedNote({ dark = false }) {
+  return (
+    <p role="status" className={`border-l-2 border-gold px-4 py-3 text-[13px] leading-snug ${dark ? 'bg-gold/15 text-cream' : 'bg-gold/20 text-charcoal'}`}>
+      <span className={`block text-[10px] font-bold uppercase tracking-[0.2em] ${dark ? 'text-gold' : 'text-gold-dark'}`}>Card payments paused</span>
+      We are not taking card payments online at the moment. You can still send your order on WhatsApp.
+    </p>
+  )
+}
+
+function PaymentStep({ onCard, paying, error, closed }) {
   return (
     <Step n="3" title="Payment" delay={0.36} id="co-payment">
       <div className="grid gap-3">
+        {closed && <ClosedNote />}
         <button
           type="button"
           onClick={onCard}
-          disabled={paying}
-          className="group flex w-full items-start gap-4 border-2 border-gold bg-gold/15 p-5 text-left transition-colors duration-300 hover:bg-gold/25 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold disabled:cursor-wait disabled:opacity-70 md:p-6"
+          disabled={paying || closed}
+          className="group flex w-full items-start gap-4 border-2 border-gold bg-gold/15 p-5 text-left transition-colors duration-300 hover:bg-gold/25 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-gold/15 md:p-6"
         >
           <span className="flex-1">
             <span className="flex flex-wrap items-center gap-2.5 text-[16px] font-semibold">
@@ -94,6 +107,7 @@ function PaymentStep({ onCard, paying, error }) {
 
 export default function CheckoutPage() {
   const cart = useCart()
+  const { storeOpen } = useProducts()
   const { navigate } = useRouter()
   const [form, setForm] = useState({ name: '', email: '', phone: '', line1: '', line2: '', city: '', postcode: '', notes: '' })
   const [country, setCountry] = useState('GB')
@@ -230,7 +244,7 @@ export default function CheckoutPage() {
                 </div>
               </Step>
 
-              <PaymentStep onCard={payByCard} paying={paying} error={payError} />
+              <PaymentStep onCard={payByCard} paying={paying} error={payError} closed={!storeOpen} />
             </div>
 
             <motion.aside
@@ -249,7 +263,7 @@ export default function CheckoutPage() {
                   {cart.lines.map((l) => (
                     <li key={l.slug} className="grid grid-cols-[64px_1fr_auto] items-center gap-4">
                       <div className="photo aspect-[4/5] w-full">
-                        <img src={img(l.product.imageId, 128, 160)} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover" />
+                        <img src={productImg(l.product.image, 128, 160)} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover" />
                       </div>
                       <span className="text-[14px] leading-snug">
                         <span className="block font-serif text-[1.15rem] font-semibold">{l.product.name}</span>
@@ -262,8 +276,9 @@ export default function CheckoutPage() {
                 <div className="border-t border-cream/15 pt-6">
                   <Totals cart={cart} shipping={shipping} />
                 </div>
+                {!storeOpen && <ClosedNote dark />}
                 <div className="grid gap-3">
-                  <button type="button" onClick={payByCard} disabled={paying} className="btn-gold min-h-[64px] w-full text-[15px] disabled:cursor-wait disabled:opacity-70">
+                  <button type="button" onClick={payByCard} disabled={paying || !storeOpen} className="btn-gold min-h-[64px] w-full text-[15px] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0">
                     {paying ? 'Opening secure checkout' : 'Pay securely with Card'} {!paying && <ArrowIcon />}
                   </button>
                   <button type="submit" className="btn min-h-[52px] w-full border border-gold/60 text-[13px] text-gold hover:-translate-y-0.5 hover:border-gold hover:bg-gold/10">

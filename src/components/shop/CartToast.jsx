@@ -3,12 +3,13 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { CheckIcon } from '../ui'
 import { Link } from '../../lib/router'
 import { useCart } from '../../lib/cart'
-import { productBySlug } from '../../data/products'
-import { TRADE_MIN, metresLabel } from '../../lib/pricing'
+import { useProducts } from '../../lib/products'
+import { MIN_METRES, TRADE_MIN, metresLabel } from '../../lib/pricing'
 
 // A short note under the header each time something goes in the cart.
 export default function CartToast() {
   const { notice, dismissNotice } = useCart()
+  const { bySlug } = useProducts()
 
   useEffect(() => {
     if (!notice) return
@@ -16,7 +17,8 @@ export default function CartToast() {
     return () => clearTimeout(t)
   }, [notice])
 
-  const product = notice && productBySlug(notice.slug)
+  const product = notice && bySlug(notice.slug)
+  const byStock = notice?.limit === 'stock'
   return (
     <div aria-live="polite" className="pointer-events-none fixed inset-x-3 top-[76px] z-[45] flex justify-end md:right-8 md:top-[92px]">
       <AnimatePresence>
@@ -37,10 +39,15 @@ export default function CartToast() {
                   <>
                     Added {metresLabel(notice.added)} of <strong className="font-semibold">{product.name}</strong>. You have {metresLabel(notice.total)} in your cart.
                   </>
+                ) : byStock && notice.max < MIN_METRES ? (
+                  <><strong className="font-semibold">{product.name}</strong> is sold out at the moment.</>
+                ) : byStock ? (
+                  <>Only {metresLabel(notice.max)} of {product.name} is in stock, and it is all in your cart.</>
                 ) : (
                   <>You already have the most we can take online of {product.name}.</>
                 )}
-                {notice.capped && <span className="mt-1 block text-cream/70">For {TRADE_MIN}m or more, ask us for trade pricing on WhatsApp.</span>}
+                {notice.capped && notice.added > 0 && byStock && <span className="mt-1 block text-cream/70">That is all {metresLabel(notice.max)} we have in stock.</span>}
+                {notice.capped && !byStock && <span className="mt-1 block text-cream/70">For {TRADE_MIN}m or more, ask us for trade pricing on WhatsApp.</span>}
               </span>
             </p>
             <div className="mt-3 flex items-center gap-4 pl-[26px]">

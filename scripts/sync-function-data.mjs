@@ -1,13 +1,14 @@
-// Copies the shop's product and pricing modules into the checkout function, so Supabase can bundle
-// them without reaching outside supabase/functions. src/ stays the one place to edit prices.
+// Copies the shop's pricing module into the checkout function, so Supabase can bundle it without
+// reaching outside supabase/functions. src/ stays the one place to edit discounts and postage;
+// prices per metre live in the products table, edited from the admin portal.
 import { readFileSync, writeFileSync } from 'node:fs'
 
 const dest = 'supabase/functions/create-checkout-session/'
 const header = '// Copied from src by `npm run functions:sync`. Edit the original in src, not this file.\n'
-const files = { 'src/data/products.js': 'products.js', 'src/lib/pricing.js': 'pricing.js', 'src/config.js': 'config.js' }
+const files = { 'src/lib/pricing.js': 'pricing.js' }
 
 for (const [from, to] of Object.entries(files)) {
-  const code = readFileSync(from, 'utf8').replace("'../config.js'", "'./config.js'").replace("'../lib/pricing.js'", "'./pricing.js'")
+  const code = readFileSync(from, 'utf8')
   writeFileSync(dest + to, header + code)
 }
-console.log(`Synced ${Object.keys(files).length} files into ${dest}`)
+console.log(`Synced ${Object.keys(files).length} file into ${dest}`)

@@ -4,9 +4,9 @@ import { Stepper } from './QuantitySelector'
 import { ArrowIcon, BagIcon, WhatsAppIcon } from '../ui'
 import { Link } from '../../lib/router'
 import { useCart } from '../../lib/cart'
-import { TONES } from '../../data/products'
-import { MAX_CART_METRES, metresLabel, perMetreLabel } from '../../lib/pricing'
-import { img, whatsappLink } from '../../config'
+import { TONES, productImg, productSrcSet } from '../../data/products'
+import { MAX_CART_METRES, MIN_METRES, metresLabel, perMetreLabel } from '../../lib/pricing'
+import { whatsappLink } from '../../config'
 
 const EASE = [0.22, 1, 0.36, 1]
 const pad = (n) => String(n).padStart(2, '0')
@@ -77,8 +77,8 @@ export default function SwatchBook({ products, id, browse, empty }) {
         <AnimatePresence initial={false}>
           <motion.img
             key={current.slug}
-            src={img(current.imageId, 1400, 1600)}
-            srcSet={[700, 1000, 1400, 2000].map((w) => `${img(current.imageId, w, Math.round(w * 1.15))} ${w}w`).join(', ')}
+            src={productImg(current.image, 1400, 1600)}
+            srcSet={productSrcSet(current.image, [700, 1000, 1400, 2000], 1.15)}
             sizes="(min-width: 1024px) 58vw, 100vw"
             alt={`${current.name}, ${current.weave}`}
             draggable={false}
@@ -132,8 +132,8 @@ export default function SwatchBook({ products, id, browse, empty }) {
               </p>,
               <div key="actions" className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
                 <Stepper value={metres} onChange={setMetres} max={MAX_CART_METRES} label={`Metres of ${current.name}`} dark={!onLight} />
-                <button type="button" onClick={() => add(current.slug, metres)} className={`btn min-h-[52px] ${tone.button}`}>
-                  <BagIcon className="h-[18px] w-[18px]" /> Add to Cart
+                <button type="button" onClick={() => add(current.slug, metres)} disabled={current.stock < MIN_METRES} className={`btn min-h-[52px] disabled:opacity-60 ${tone.button}`}>
+                  <BagIcon className="h-[18px] w-[18px]" /> {current.stock < MIN_METRES ? 'Sold out' : 'Add to Cart'}
                 </button>
                 <a href={whatsappLink(wa)} target="_blank" rel="noopener noreferrer" className={`btn min-h-[52px] border ${tone.outline}`}>
                   <WhatsAppIcon className="h-[18px] w-[18px]" /> Order via WhatsApp
@@ -184,7 +184,7 @@ export default function SwatchBook({ products, id, browse, empty }) {
                   on ? 'scale-105 opacity-100 shadow-[0_0_0_2px_#FAF4E4,0_0_0_4px_rgba(10,10,10,0.5)]' : 'opacity-70 hover:scale-105 hover:opacity-100'
                 }`}
               >
-                <img src={img(p.imageId, 120, 120)} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover" />
+                <img src={productImg(p.image, 120, 120)} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover" />
                 <span aria-hidden="true" className="absolute inset-x-0 bottom-0 h-1.5" style={{ background: (TONES[p.tone] ?? TONES.charcoal).bg }} />
               </button>
             )
