@@ -10,7 +10,7 @@ import { useCart } from '../lib/cart'
 import { orderMessage, orderRef } from '../lib/order'
 import { COUNTRIES, metresLabel, money, shippingCost } from '../lib/pricing'
 import { PHONE_DISPLAY, img, whatsappLink } from '../config'
-import { supabase } from '../supabaseClient'
+import { supabase, supabaseConfigError } from '../supabaseClient'
 
 export const CONFIRM_KEY = 'esterica-last-order'
 
@@ -47,7 +47,17 @@ function Step({ n, title, delay = 0, id, children }) {
 }
 
 // Card is the main way to pay; WhatsApp stays as the second route and submits the form.
-function PaymentStep({ onCard, paying }) {
+function PayError({ message, dark = false }) {
+  if (!message) return null
+  return (
+    <p role="alert" className={`border-l-2 border-crimson px-4 py-3 text-[13px] leading-snug ${dark ? 'bg-crimson/20 text-cream' : 'bg-crimson/10 text-charcoal'}`}>
+      <span className="block text-[10px] font-bold uppercase tracking-[0.2em] text-crimson">Card checkout failed</span>
+      {message}
+    </p>
+  )
+}
+
+function PaymentStep({ onCard, paying, error }) {
   return (
     <Step n="3" title="Payment" delay={0.36} id="co-payment">
       <div className="grid gap-3">
@@ -76,6 +86,7 @@ function PaymentStep({ onCard, paying }) {
             <span className="mt-1 block text-[13px] leading-snug text-charcoal/65">Your order opens in WhatsApp, ready to send. We reply with payment details.</span>
           </span>
         </button>
+        <PayError message={error} />
       </div>
     </Step>
   )
@@ -87,6 +98,7 @@ export default function CheckoutPage() {
   const [form, setForm] = useState({ name: '', email: '', phone: '', line1: '', line2: '', city: '', postcode: '', notes: '' })
   const [country, setCountry] = useState('GB')
   const [paying, setPaying] = useState(false)
+  const [payError, setPayError] = useState(null)
   const formRef = useRef(null)
   const { scrollTo } = useSmoothScroll()
   const update = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }))
@@ -101,18 +113,29 @@ export default function CheckoutPage() {
   // Card payments go through Stripe Checkout via the create-checkout-session Supabase function.
   const handleStripeCheckout = async () => {
     setPaying(true)
+    setPayError(null)
     try {
+      if (supabaseConfigError) throw new Error(supabaseConfigError)
+      // The cart exposes its contents as `lines`; each carries a slug and a length in metres.
+      if (!Array.isArray(cart.lines) || cart.lines.length === 0) throw new Error('Your cart is empty, so there is nothing to pay for.')
+      // Only slugs and metres leave the browser: the function prices everything from the product data.
+      const items = cart.lines.map(({ slug, metres }) => ({ slug, metres }))
+      const bad = items.find(({ slug, metres }) => typeof slug !== 'string' || !slug || !Number.isFinite(metres) || metres <= 0)
+      if (bad) throw new Error(`A cart item is malformed: ${JSON.stringify(bad)}. Please remove it and add it again.`)
+
       const { data, error } = await supabase.functions.invoke('create-checkout-session', {
-        // Only slugs and metres leave the browser: the function prices everything from the product data.
-        body: { items: cart.items.map(({ slug, metres }) => ({ slug, metres })), method: cart.method, country },
+        body: { items, method: cart.method, country },
       })
       if (error) throw error
+      if (!data?.url) throw new Error('The payment service replied without a checkout link.')
       window.location.href = data.url
     } catch (error) {
       console.error('Payment error:', error)
       // A refused request carries the function's own reason, such as postage to Ireland being quoted.
       const reason = await error.context?.json?.().then((body) => body.error, () => null)
-      alert(reason || 'Could not start card checkout. Please try again, or order on WhatsApp.')
+      // A request that never arrived wraps the browser's own error (network, CORS) in `context`.
+      const cause = !reason && error.context instanceof Error ? error.context.message : null
+      setPayError(reason || [error.message || String(error), cause].filter(Boolean).join(': '))
       setPaying(false)
     }
   }
@@ -207,7 +230,7 @@ export default function CheckoutPage() {
                 </div>
               </Step>
 
-              <PaymentStep onCard={payByCard} paying={paying} />
+              <PaymentStep onCard={payByCard} paying={paying} error={payError} />
             </div>
 
             <motion.aside
@@ -247,6 +270,7 @@ export default function CheckoutPage() {
                     <WhatsAppIcon /> Order via WhatsApp
                   </button>
                 </div>
+                <PayError message={payError} dark />
                 <p className="text-[12px] leading-relaxed text-cream/60">
                   Card payments are handled securely by Stripe. Prefer WhatsApp? Your order opens to {PHONE_DISPLAY}, ready to send, and we confirm stock and payment with you there.
                 </p>
