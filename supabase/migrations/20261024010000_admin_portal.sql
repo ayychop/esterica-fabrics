@@ -35,6 +35,23 @@ create table if not exists public.products (
   blurb text,
   created_at timestamptz not null default now()
 );
+-- The table may already exist with fewer columns (it was first made by hand), so add whatever is missing.
+alter table public.products add column if not exists slug text;
+alter table public.products add column if not exists name text;
+alter table public.products add column if not exists price integer;
+alter table public.products add column if not exists category text;
+alter table public.products add column if not exists stock numeric(6, 1) not null default 0;
+alter table public.products add column if not exists image_url text;
+alter table public.products add column if not exists tone text check (tone in ('gold', 'crimson', 'forest', 'indigo', 'charcoal'));
+alter table public.products add column if not exists weave text;
+alter table public.products add column if not exists origin text;
+alter table public.products add column if not exists occasions text[] not null default '{}';
+alter table public.products add column if not exists colours text[] not null default '{}';
+alter table public.products add column if not exists patterns text[] not null default '{}';
+alter table public.products add column if not exists blurb text;
+alter table public.products add column if not exists created_at timestamptz not null default now();
+-- The shop looks cloth up by slug, and the seed below relies on it being unique.
+create unique index if not exists products_slug_key on public.products (slug);
 alter table public.products enable row level security;
 drop policy if exists "Anyone can read products" on public.products;
 create policy "Anyone can read products" on public.products for select to anon, authenticated using (true);
@@ -53,6 +70,8 @@ create table if not exists public.store_settings (
   is_open boolean not null default true,
   updated_at timestamptz not null default now()
 );
+alter table public.store_settings add column if not exists is_open boolean not null default true;
+alter table public.store_settings add column if not exists updated_at timestamptz not null default now();
 insert into public.store_settings (id, is_open) values (1, true) on conflict (id) do nothing;
 alter table public.store_settings enable row level security;
 drop policy if exists "Anyone can read store settings" on public.store_settings;
@@ -83,3 +102,9 @@ insert into public.products (slug, name, price, category, stock, image_url, tone
   ('akwaaba-bloom', 'Akwaaba Bloom', 1200, 'budget', 25, 'https://images.unsplash.com/photo-1784123476742-de48239d2fb0', 'forest', 'Kente-style print', 'Printed in Ghana on cotton', array['Naming ceremonies', 'Everyday wear', 'Church & Sunday best']::text[], array['Gold', 'Green']::text[], array['Printed']::text[], 'Akwaaba means welcome. A bright kente-style print in gold and green, light and cheerful for a new baby''s naming day, and kind to the budget for big family orders.', '2026-10-12')
 
 on conflict (slug) do nothing;
+
+-- Check: every column the site uses, with its type. price should be integer (pence), stock numeric (metres).
+select table_name, column_name, data_type
+from information_schema.columns
+where table_schema = 'public' and table_name in ('products', 'store_settings', 'admin_users')
+order by table_name, ordinal_position;
