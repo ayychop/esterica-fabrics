@@ -117,10 +117,12 @@ export default function CheckoutPage() {
     }
   }
 
-  // From the summary: pay straight away once the form is complete, otherwise take them to the payment step.
-  const payFromSummary = () => {
-    if (formRef.current?.checkValidity()) handleStripeCheckout()
-    else scrollTo(document.getElementById('co-payment'))
+  // Card payment waits for a complete form: otherwise glide to the first empty required field and focus it.
+  const payByCard = () => {
+    const missing = Array.from(formRef.current?.elements ?? []).find((el) => el.tagName !== 'FIELDSET' && !el.checkValidity())
+    if (!missing) return handleStripeCheckout()
+    scrollTo(missing)
+    missing.focus({ preventScroll: true })
   }
 
   const submit = (e) => {
@@ -205,7 +207,7 @@ export default function CheckoutPage() {
                 </div>
               </Step>
 
-              <PaymentStep onCard={handleStripeCheckout} paying={paying} />
+              <PaymentStep onCard={payByCard} paying={paying} />
             </div>
 
             <motion.aside
@@ -238,7 +240,7 @@ export default function CheckoutPage() {
                   <Totals cart={cart} shipping={shipping} />
                 </div>
                 <div className="grid gap-3">
-                  <button type="button" onClick={payFromSummary} disabled={paying} className="btn-gold min-h-[64px] w-full text-[15px] disabled:cursor-wait disabled:opacity-70">
+                  <button type="button" onClick={payByCard} disabled={paying} className="btn-gold min-h-[64px] w-full text-[15px] disabled:cursor-wait disabled:opacity-70">
                     {paying ? 'Opening secure checkout' : 'Pay securely with Card'} {!paying && <ArrowIcon />}
                   </button>
                   <button type="submit" className="btn min-h-[52px] w-full border border-gold/60 text-[13px] text-gold hover:-translate-y-0.5 hover:border-gold hover:bg-gold/10">
