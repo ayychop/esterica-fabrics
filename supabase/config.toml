@@ -425,3 +425,9 @@ entrypoint = "./functions/create-checkout-session/index.ts"
 # Specifies static files to be bundled with the function. Supports glob patterns.
 # For example, if you want to serve static HTML pages in your function:
 # static_files = [ "./functions/create-checkout-session/*.html" ]
+
+# Stripe calls this directly and signs each request, so it carries no Supabase JWT.
+[functions.stripe-webhook]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/stripe-webhook/index.ts"
