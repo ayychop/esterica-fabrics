@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
+import { KenteStrip } from '../components/Kente'
 import { supabase } from '../supabaseClient'
 import { CATEGORY_TONE, toProduct } from '../data/products'
 import { TIERS, perMetreLabel } from '../lib/pricing'
@@ -114,12 +115,13 @@ export default function AddProductForm({ open, onClose, onAdded, taken }) {
             role="dialog"
             aria-modal="true"
             aria-labelledby="add-title"
-            className="absolute inset-y-0 right-0 flex w-full max-w-[520px] flex-col overflow-y-auto border-l-4 border-gold bg-charcoal text-cream"
+            className="absolute inset-y-0 right-0 flex w-full max-w-[520px] flex-col overflow-y-auto border-l border-cream/10 bg-charcoal text-cream"
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', stiffness: 320, damping: 36 }}
           >
+            <KenteStrip height={10} className="shrink-0" />
             <div className="flex items-start justify-between gap-4 px-6 pb-2 pt-8 md:px-10">
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.32em] text-gold">Inventory</p>
